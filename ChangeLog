@@ -1,3 +1,13 @@
+2009-09-07  Andrés Gómez  <agomez@igalia.com>
+
+	* ext/gst-camerabin/gdigicam-camerabin.c:
+	(_g_digicam_camerabin_handle_bus_message): Process only camerabin
+	state changed messages and not the internal element ones. Fixed
+	memory leaks.
+	(_g_digicam_camerabin_handle_sync_bus_message): Process messages
+	depending if they come from camerabin or not.
+	Fixes: NB#108662.
+
 2009-09-04  Andrés Gómez  <agomez@igalia.com>
 
 	* doc/reference/gdigicam-docs.sgml:

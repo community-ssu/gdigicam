@@ -2162,30 +2162,53 @@ _g_digicam_camerabin_handle_bus_message (GDigicamManager *manager,
     GError *error = NULL;
     GDigicamMode mode;
     GstElement *bin = NULL;
+    gboolean result = FALSE;
 
     switch (GST_MESSAGE_TYPE (GST_MESSAGE (user_data))) {
     case GST_MESSAGE_STATE_CHANGED:
-	gst_message_parse_state_changed (GST_MESSAGE (user_data),
-					 &old,
-					 &new,
-					 &pending);
-	if (new == GST_STATE_PLAYING) {
-	    g_digicam_manager_get_gstreamer_bin (manager,
-						 &bin,
-						 &error);
-	    g_digicam_manager_get_mode (manager,
-					&mode,
-					&error);
+        /* Don't care if it is not coming from camerabin itself */
+	result = g_digicam_manager_get_gstreamer_bin (manager,
+                                                      &bin,
+                                                      &error);
 
-	    switch (mode) {
-	    case G_DIGICAM_MODE_STILL:
-		g_object_set (bin, "mode", 0, NULL);
-		break;
-	    case G_DIGICAM_MODE_VIDEO:
-		g_object_set (bin, "mode", 1, NULL);
-		break;
-	    default:
-		g_assert_not_reached ();
+        /* Check errors */
+        if (!result) {
+            if (NULL != error) {
+                G_DIGICAM_DEBUG ("GDigicamCamerabin::_g_digicam_camerabin_handle_bus_message: "
+                                 "%s", error->message);
+            }
+            goto free;
+        }
+
+	if (GST_ELEMENT (GST_MESSAGE_SRC (GST_MESSAGE (user_data))) == bin) {
+	    gst_message_parse_state_changed (GST_MESSAGE (user_data),
+					     &old,
+					     &new,
+					     &pending);
+	    if (GST_STATE_PLAYING == new) {
+		result = g_digicam_manager_get_mode (manager,
+                                                     &mode,
+                                                     &error);
+
+                /* Check errors */
+                if (!result) {
+                    if (NULL != error) {
+                        G_DIGICAM_DEBUG ("GDigicamCamerabin::_g_digicam_camerabin_handle_bus_message: "
+                                         "%s", error->message);
+                    }
+                    goto free;
+                }
+
+		switch (mode) {
+		case G_DIGICAM_MODE_STILL:
+		    g_object_set (bin, "mode", 0, NULL);
+		    break;
+		case G_DIGICAM_MODE_VIDEO:
+		    g_object_set (bin, "mode", 1, NULL);
+		    break;
+		default:
+		    g_assert_not_reached ();
+		}
 	    }
 	}
 	break;
@@ -2198,22 +2221,26 @@ _g_digicam_camerabin_handle_bus_message (GDigicamManager *manager,
 	    gst_structure_get_int (structure, "status", &status);
 	    switch (status) {
 	    case GST_PHOTOGRAPHY_FOCUS_STATUS_FAIL:
-		G_DIGICAM_DEBUG ("GDigicamCamerabin: autofocus failed message received");
+		G_DIGICAM_DEBUG ("GDigicamCamerabin::_g_digicam_camerabin_handle_bus_message: "
+                                 "Autofocus failed message received.");
 		g_signal_emit_by_name (manager,
 				       "focus-done",
 				       G_DIGICAM_FOCUSMODESTATUS_UNABLETOREACH);
 		break;
 	    case GST_PHOTOGRAPHY_FOCUS_STATUS_SUCCESS:
-		G_DIGICAM_DEBUG ("GDigicamCamerabin: autofocus success message received");
+		G_DIGICAM_DEBUG ("GDigicamCamerabin::_g_digicam_camerabin_handle_bus_message: "
+                                 "Autofocus success message received.");
 		g_signal_emit_by_name (manager,
 				       "focus-done",
 				       G_DIGICAM_FOCUSMODESTATUS_REACHED);
 		break;
 	    case GST_PHOTOGRAPHY_FOCUS_STATUS_NONE:
-		G_DIGICAM_DEBUG ("GDigicamCamerabin: autofocus none message received");
+		G_DIGICAM_DEBUG ("GDigicamCamerabin::_g_digicam_camerabin_handle_bus_message: "
+                                 "Autofocus none message received.");
 		break;
 	    case GST_PHOTOGRAPHY_FOCUS_STATUS_RUNNING:
-		G_DIGICAM_DEBUG ("GDigicamCamerabin: autofocus running message received");
+		G_DIGICAM_DEBUG ("GDigicamCamerabin::_g_digicam_camerabin_handle_bus_message: "
+                                 "Autofocus running message received.");
 		break;
 	    default:
 		break;
@@ -2221,15 +2248,24 @@ _g_digicam_camerabin_handle_bus_message (GDigicamManager *manager,
 	    return TRUE;
 	}
 
-	/* shake risk message */
+	/* Shake risk message */
 	if (g_strcmp0 (message_name, GST_PHOTOGRAPHY_SHAKE_RISK) == 0) {
 	    return TRUE;
 	}
 
 	break;
     default:
-	/*not handling this message */
+	/* Not handling this message */
 	break;
+    }
+
+    /* Free */
+free:
+    if (NULL != bin) {
+        gst_object_unref (bin);
+    }
+    if (NULL != error) {
+        g_error_free (error);
     }
 
     return TRUE;
@@ -2256,63 +2292,109 @@ _g_digicam_camerabin_handle_sync_bus_message (GDigicamManager *manager,
     GstBuffer *buff = NULL;
     GdkPixbuf *preview = NULL;
     gboolean alpha;
+    GstElement *bin = NULL;
+    GError *error = NULL;
+    gboolean result = FALSE;
+    gboolean success = FALSE;
 
     structure = gst_message_get_structure (GST_MESSAGE (user_data));
     g_return_val_if_fail (structure != NULL, FALSE);
     message_name = gst_structure_get_name (structure);
 
-    if (g_strcmp0 (message_name, G_DIGICAM_CAMERABIN_PHOTO_CAPTURE_START_MESSAGE) == 0) {
-	G_DIGICAM_DEBUG ("GDigicamCamerabin: capture start message received");
+    /* Don't care if it is not coming from camerabin itself */
+    success = g_digicam_manager_get_gstreamer_bin (manager,
+                                                   &bin,
+                                                   &error);
 
-        /* Set lock and inform capture was started */
-        _g_digicam_manager_set_capture_lock (manager);
-
-        /* Emit a signal in the main loop */
-        g_idle_add (_emit_capture_start_signal, manager);
-
-	return TRUE;
-    } else if (g_strcmp0 (message_name, G_DIGICAM_CAMERABIN_PHOTO_CAPTURE_END_MESSAGE) == 0) {
-	G_DIGICAM_DEBUG ("GDigicamCamerabin: capture end message received");
-        TSTAMP (after-gst-next-shot);
-
-        /* Release lock and inform capture was completed */
-        _g_digicam_manager_release_capture_lock (manager);
-
-        /* Emit a signal in the main loop */
-        g_idle_add (_emit_capture_end_signal, manager);
-
-	return TRUE;
-    } else if (g_strcmp0 (message_name, G_DIGICAM_CAMERABIN_PHOTO_CAPTURE_PICTURE_GOT_MESSAGE) == 0) {
-	G_DIGICAM_DEBUG ("GDigicamCamerabin::_g_digicam_camerabin_handle_sync_bus_message: "
-                         "picture got message received");
-
-        /* Emit a signal in the main loop */
-        g_idle_add (_emit_picture_got_signal, manager);
-
-	return TRUE;
-    } else if (g_strcmp0 (message_name, G_DIGICAM_CAMERABIN_PHOTO_PREVIEW_MESSAGE) == 0) {
-	G_DIGICAM_DEBUG ("GDigicamCamerabin: image preview message received");
-        TSTAMP (after-gst-snapshot);
-        value = gst_structure_get_value (structure, "buffer");
-        buff = gst_value_get_buffer (value);
-        alpha = FALSE;
-
-        /* Preview using the RGB row data from GstBuffer */
-        preview = _pixbuf_from_buffer (manager, buff, alpha);
-
-        /* FIXME: shouldn't we send the signal even if we don't have any data? */
-        /* Send the acquired preview */
-        if (NULL != preview) {
-            helper = g_slice_new0 (PreviewHelper);
-            helper->mgr = manager;
-            helper->preview = preview;
-            g_idle_add (_emit_preview_signal, helper);
+    /* Check errors */
+    if (!success) {
+        if (NULL != error) {
+            G_DIGICAM_DEBUG ("GDigicamCamerabin::_g_digicam_camerabin_handle_bus_message: "
+                             "%s", error->message);
         }
-
-	return TRUE;
+        goto free;
     }
 
-    return FALSE;
+    if (GST_ELEMENT (GST_MESSAGE_SRC (GST_MESSAGE (user_data))) == bin) {
+        if (g_strcmp0 (message_name, G_DIGICAM_CAMERABIN_PHOTO_CAPTURE_END_MESSAGE) == 0) {
+            G_DIGICAM_DEBUG ("GDigicamCamerabin::_g_digicam_camerabin_handle_sync_bus_message: "
+                             "Capture end message received.");
+            TSTAMP (after-gst-next-shot);
+
+            /* Release lock and inform capture was completed */
+            _g_digicam_manager_release_capture_lock (manager);
+
+            /* Emit a signal in the main loop */
+            g_idle_add (_emit_capture_end_signal, manager);
+
+            result = TRUE;
+            goto free;
+        } else if (g_strcmp0 (message_name, G_DIGICAM_CAMERABIN_PHOTO_PREVIEW_MESSAGE) == 0) {
+            G_DIGICAM_DEBUG ("GDigicamCamerabin::_g_digicam_camerabin_handle_sync_bus_message: "
+                             "Image preview message received.");
+            TSTAMP (after-gst-snapshot);
+            value = gst_structure_get_value (structure, "buffer");
+            buff = gst_value_get_buffer (value);
+            alpha = FALSE;
+
+            /* Preview using the RGB row data from GstBuffer */
+            preview = _pixbuf_from_buffer (manager, buff, alpha);
+
+            /* FIXME: shouldn't we send the signal even if we don't have any data? */
+            /* Send the acquired preview */
+            if (NULL != preview) {
+                helper = g_slice_new0 (PreviewHelper);
+                helper->mgr = manager;
+                helper->preview = preview;
+                g_idle_add (_emit_preview_signal, helper);
+            }
+
+            result = TRUE;
+            goto free;
+        } else {
+            G_DIGICAM_DEBUG ("GDigicamCamerabin::_g_digicam_camerabin_handle_sync_bus_message: "
+                             "Unhandled sync DBus message "
+                             "coming from camerabin.");
+        }
+    } else {
+        if (g_strcmp0 (message_name, G_DIGICAM_CAMERABIN_PHOTO_CAPTURE_START_MESSAGE) == 0) {
+            G_DIGICAM_DEBUG ("GDigicamCamerabin::_g_digicam_camerabin_handle_sync_bus_message: "
+                             "Capture start message received.");
+
+            /* Set lock and inform capture was started */
+            _g_digicam_manager_set_capture_lock (manager);
+
+            /* Emit a signal in the main loop */
+            g_idle_add (_emit_capture_start_signal, manager);
+
+            result = TRUE;
+            goto free;
+        } else if (g_strcmp0 (message_name, G_DIGICAM_CAMERABIN_PHOTO_CAPTURE_PICTURE_GOT_MESSAGE) == 0) {
+            G_DIGICAM_DEBUG ("GDigicamCamerabin::_g_digicam_camerabin_handle_sync_bus_message: "
+                             "Picture got message received.");
+
+            /* Emit a signal in the main loop */
+            g_idle_add (_emit_picture_got_signal, manager);
+
+            result = TRUE;
+            goto free;
+        } else {
+            G_DIGICAM_DEBUG ("GDigicamCamerabin::_g_digicam_camerabin_handle_sync_bus_message: "
+                             "Unhandled sync DBus message "
+                             "not coming from camerabin.");
+        }
+    }
+
+    /* Free */
+free:
+    if (NULL != bin) {
+        gst_object_unref (bin);
+    }
+    if (NULL != error) {
+        g_error_free (error);
+    }
+
+    return result;
 }
 
 

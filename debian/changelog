@@ -1,9 +1,10 @@
-gdigicam (0.2.36.2+0m5) unstable; urgency=low
+gdigicam (0.2.37.1) unstable; urgency=low
 
-  * This entry has been added by BIFH queue processor
-    Suffix +0m5 added to package revision
+  * Fixes: NB#108662 - When selecting the camera modes, it takes too
+    long to switch.
+  * Updated audio encoder bitrate and sample rate.
 
- -- Harri Mahonen <ext-harri.mahonen@nokia.com>  Tue, 08 Sep 2009 13:43:47 +0300
+ -- Andrés Gómez <agomez@igalia.com>  Tue, 08 Sep 2009 14:43:48 +0200
 
 gdigicam (0.2.36.2) unstable; urgency=low
 

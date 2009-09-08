@@ -513,10 +513,10 @@ g_digicam_camerabin_element_new (const gchar *videosrc,
                              "App specified %s as audioenc. Using it.",
                              audioenc);
 	    aenc = gst_element_factory_make (audioenc, NULL);
-	    bitrate = 32000;
+	    bitrate = 128000;
 	    aenc_width = 16;
 	    aenc_depth = 16;
-	    aenc_rate = 22050;
+	    aenc_rate = 48000;
 	    aenc_channels = 1;
 	} else {
 	    G_DIGICAM_DEBUG ("GDigicamCamerabin::g_digicam_camerabin_element_new: "

@@ -1,3 +1,14 @@
+2009-09-11  Javier Fernández  <jfernandez@igalia.com>
+
+	reviewed by: Andrés Gómez <agomez@igalia.com>
+
+	* ext/gst-camerabin/gdigicam-camerabin.c:
+	(_g_digicam_camerabin_set_picture_metadata),
+	(_g_digicam_camerabin_set_video_metadata): Refactored to avoid
+	setting uninitialized metadata.
+	GST_TAG_DATE_TIME_ORIGINAL and GST_TAG_DATE_TIME_MODIFIED macros
+	fixed, as they were swapped.
+
 2009-09-08  Andrés Gómez  <agomez@igalia.com>
 
 	* ext/gst-camerabin/data/gdigicam-camerabin.conf: Modified audio
@@ -24,4 +35,3 @@
 	* ext/gst-camerabin/gdigicam-camerabin.h:
 	* src/gdigicam-error.c:
 	GTK-Doc completed.
-

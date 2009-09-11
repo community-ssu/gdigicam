@@ -50,8 +50,8 @@
 
 #define G_KEY_FILE_PATH CONFIG_DIR "/gdigicam-camerabin.conf"
 
-#define GST_TAG_DATE_TIME_ORIGINAL          "date-time-modified"
-#define GST_TAG_DATE_TIME_MODIFIED          "date-time-original"
+#define GST_TAG_DATE_TIME_ORIGINAL          "date-time-original"
+#define GST_TAG_DATE_TIME_MODIFIED          "date-time-modified"
 #define GST_TAG_DEVICE_MAKE                 "device-make"
 #define GST_TAG_DEVICE_MODEL                "device-model"
 #define GST_TAG_CLASSIFICATION              "classification"
@@ -2013,7 +2013,12 @@ _g_digicam_camerabin_set_picture_metadata (GstElement *gst_camera_bin,
      * http://webcvs.freedesktop.org/gstreamer/gst-plugins-bad/ext/metadata/metadata_mapping.htm?view=co
      */
 
+    /* TODO: These location tags in quotes have to be in sync with
+     * other tags after GStreamer's headers are updated.
+     * See NB#125831 */
+
     GstTagSetter *setter = NULL;
+    GstTagList *list = NULL;
     GTimeVal time = { 0,0 };
     gchar *date_str = NULL;
 
@@ -2025,7 +2030,7 @@ _g_digicam_camerabin_set_picture_metadata (GstElement *gst_camera_bin,
     g_get_current_time(&time);
     date_str = g_time_val_to_iso8601 (&time); /* this is UTC */
 
-    ULOG_DEBUG ("GDigicamCamerabin: "
+    ULOG_DEBUG ("GDigicamCamerabin::_g_digicam_camerabin_set_picture_metadata: "
                 "Writing Picture Metadata: \n"
                 "\n\tdate: %s"
                 "\n\tmake: %s"
@@ -2038,37 +2043,70 @@ _g_digicam_camerabin_set_picture_metadata (GstElement *gst_camera_bin,
                 "\n\tlatitude: %f"
                 "\n\tlongtitude: %f"
                 "\n\torientation: %d",
-                date_str, metadata->make, 
-                metadata->model, 
+                date_str, metadata->make,
+                metadata->model,
                 metadata->author,
                 metadata->country_name,
                 metadata->city_name,
                 metadata->suburb_name,
                 metadata->altitude,
-                metadata->latitude, metadata->longitude,
+                metadata->latitude,
+                metadata->longitude,
                 metadata->orientation);
 
-    /* TODO: These location tags in quotes have to be in sync with
-     * other tags after GStreamer's headers are updated.
-     * see NB#125831 */
-                
+    /* Creating the tag list with the mandatory tags. */
+    list = gst_tag_list_new ();
+    gst_tag_list_add (list, GST_TAG_MERGE_APPEND,
+                      GST_TAG_DATE_TIME_ORIGINAL, date_str,
+                      GST_TAG_DATE_TIME_MODIFIED, date_str,
+                      GST_TAG_DEVICE_MAKE, metadata->make,
+                      GST_TAG_DEVICE_MODEL, metadata->model,
+                      GST_TAG_CAPTURE_ORIENTATION, metadata->orientation,
+                      NULL);
 
-    /* Set metadata tags */
-    gst_tag_setter_add_tags (setter, GST_TAG_MERGE_REPLACE_ALL,
-                             GST_TAG_DATE_TIME_ORIGINAL, date_str,
-                             GST_TAG_DATE_TIME_MODIFIED, date_str,
-                             GST_TAG_DEVICE_MAKE, metadata->make,
-                             GST_TAG_DEVICE_MODEL, metadata->model,
-                             GST_TAG_COMPOSER, metadata->author,
-                             GST_TAG_GEO_LOCATION_COUNTRY, metadata->country_name,
-                             GST_TAG_GEO_LOCATION_CITY, metadata->city_name,
-                             GST_TAG_GEO_LOCATION_SUBLOCATION, metadata->suburb_name,
-                             GST_TAG_GEO_LOCATION_ELEVATION, metadata->altitude,
-                             GST_TAG_GEO_LOCATION_LATITUDE, metadata->latitude,
-                             GST_TAG_GEO_LOCATION_LONGITUDE, metadata->longitude,
-                             GST_TAG_CAPTURE_ORIENTATION, metadata->orientation,
-                             NULL);
+    /* Adding coordinates, just if set. */
+    if (G_MAXDOUBLE != metadata->latitude &&
+        G_MAXDOUBLE != metadata->longitude) {
+        gst_tag_list_add (list, GST_TAG_MERGE_APPEND,
+                          GST_TAG_GEO_LOCATION_LATITUDE, metadata->latitude,
+                          GST_TAG_GEO_LOCATION_LONGITUDE, metadata->longitude,
+                          NULL);
+        if (G_MAXDOUBLE != metadata->altitude) {
+            gst_tag_list_add (list, GST_TAG_MERGE_APPEND,
+                              GST_TAG_GEO_LOCATION_ELEVATION, metadata->altitude,
+                              NULL);
+        }
+    }
 
+    /* Adding optional metadata tags. */
+    if (NULL != metadata->author) {
+        gst_tag_list_add (list, GST_TAG_MERGE_APPEND,
+                          GST_TAG_COMPOSER, metadata->author,
+                          NULL);
+    }
+
+    /* Adding optional metadata tags. */
+    if (NULL != metadata->author) {
+        gst_tag_list_add (list, GST_TAG_MERGE_APPEND,
+                          GST_TAG_COMPOSER, metadata->author,
+                          NULL);
+    }
+
+    /* We should have all the geotags. */
+    if (NULL != metadata->country_name) {
+        gst_tag_list_add (list, GST_TAG_MERGE_APPEND,
+                          GST_TAG_GEO_LOCATION_COUNTRY, metadata->country_name,
+                          GST_TAG_GEO_LOCATION_CITY, metadata->city_name,
+                          GST_TAG_GEO_LOCATION_SUBLOCATION, metadata->suburb_name,
+                          NULL);
+    }
+
+    /* Set metadata tags. */
+    gst_tag_setter_merge_tags (setter, list,
+                               GST_TAG_MERGE_REPLACE_ALL);
+
+    /* Free. */
+    gst_tag_list_free (list);
     g_free (date_str);
 }
 
@@ -2090,7 +2128,12 @@ _g_digicam_camerabin_set_video_metadata (GstElement *gst_camera_bin,
      * http://webcvs.freedesktop.org/gstreamer/gst-plugins-bad/ext/metadata/metadata_mapping.htm?view=co
      */
 
+    /* TODO: These location tags in quotes have to be in sync with
+     * other tags after GStreamer's headers are updated.
+     * See NB#125831 */
+
     GstTagSetter *setter = NULL;
+    GstTagList *list = NULL;
     /*we should not set Date if hantro is used as its automatically set by it.
     If we set date and time, hantro extract only year from it and erase the automatic date */
     /*TODO: Verfiy aumatice date set. */
@@ -2105,7 +2148,8 @@ _g_digicam_camerabin_set_video_metadata (GstElement *gst_camera_bin,
     /*g_get_current_time(&time);
     date_str = g_time_val_to_iso8601 (&time);*/ /* this is UTC */
 
-    ULOG_DEBUG ("Writing Picture Metadata: \n"
+    ULOG_DEBUG ("GDigicamCamerabin::_g_digicam_camerabin_set_video_metadata: "
+                "Writing Video Metadata: \n"
                 "\n\tauthor: %s"
                 "\n\tcountry: %s"
                 "\n\tcity: %s"
@@ -2118,24 +2162,51 @@ _g_digicam_camerabin_set_video_metadata (GstElement *gst_camera_bin,
                 metadata->city_name,
                 metadata->suburb_name,
                 metadata->altitude,
-                metadata->latitude, metadata->longitude);
+                metadata->latitude,
+                metadata->longitude);
 
-    /* TODO: These location tags in quotes have to be in sync with
-     * other tags after GStreamer's headers are updated.
-     * see NB#125831 */
+    /* Creating the tag list with the mandatory tags. */
+    list = gst_tag_list_new ();
+    gst_tag_list_add (list, GST_TAG_MERGE_APPEND,
+                      GST_TAG_CLASSIFICATION, metadata->unique_id,
+                      NULL);
 
-    /* Set metadata tags */
-    gst_tag_setter_add_tags (setter, GST_TAG_MERGE_REPLACE_ALL,
-                             GST_TAG_ARTIST, metadata->author,
-                             GST_TAG_CLASSIFICATION, metadata->unique_id,
-                             GST_TAG_GEO_LOCATION_COUNTRY, metadata->country_name,
-                             GST_TAG_GEO_LOCATION_CITY, metadata->city_name,
-                             GST_TAG_GEO_LOCATION_SUBLOCATION, metadata->suburb_name,
-                             GST_TAG_GEO_LOCATION_ELEVATION, metadata->altitude,
-                             GST_TAG_GEO_LOCATION_LATITUDE, metadata->latitude,
-                             GST_TAG_GEO_LOCATION_LONGITUDE, metadata->longitude,
-                             NULL);
+    /* Adding coordinates, just if set. */
+    if (G_MAXDOUBLE != metadata->latitude &&
+        G_MAXDOUBLE != metadata->longitude) {
+        gst_tag_list_add (list, GST_TAG_MERGE_APPEND,
+                          GST_TAG_GEO_LOCATION_LATITUDE, metadata->latitude,
+                          GST_TAG_GEO_LOCATION_LONGITUDE, metadata->longitude,
+                          NULL);
+        if (G_MAXDOUBLE != metadata->altitude) {
+            gst_tag_list_add (list, GST_TAG_MERGE_APPEND,
+                              GST_TAG_GEO_LOCATION_ELEVATION, metadata->altitude,
+                              NULL);
+        }
+    }
 
+    /* Adding optional metadata tags. */
+    if (NULL != metadata->author) {
+        gst_tag_list_add (list, GST_TAG_MERGE_APPEND,
+                          GST_TAG_ARTIST, metadata->author,
+                          NULL);
+    }
+
+    /* We should have all the geotags. */
+    if (NULL != metadata->country_name) {
+        gst_tag_list_add (list, GST_TAG_MERGE_APPEND,
+                          GST_TAG_GEO_LOCATION_COUNTRY, metadata->country_name,
+                          GST_TAG_GEO_LOCATION_CITY, metadata->city_name,
+                          GST_TAG_GEO_LOCATION_SUBLOCATION, metadata->suburb_name,
+                          NULL);
+    }
+
+    /* Set metadata tags. */
+    gst_tag_setter_merge_tags (setter, list,
+                               GST_TAG_MERGE_REPLACE_ALL);
+
+    /* Free. */
+    gst_tag_list_free (list);
 }
 
 

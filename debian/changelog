@@ -1,3 +1,13 @@
+gdigicam (0.2.38.1) unstable; urgency=low
+
+  * Changed the metadata setter functions in the GStreamer CameraBin
+    external library plugin so they avoid to set uninitialized metadata.
+    GST_TAG_DATE_TIME_ORIGINAL and GST_TAG_DATE_TIME_MODIFIED macros
+    have been also swapped.
+  * Fixes: NB#133486 - Photos get geotagged with "Oulunsalo, Finland".
+
+ -- Andrés Gómez <agomez@igalia.com>  Sat, 12 Sep 2009 02:27:03 +0200
+
 gdigicam (0.2.37.1) unstable; urgency=low
 
   * Fixes: NB#108662 - When selecting the camera modes, it takes too

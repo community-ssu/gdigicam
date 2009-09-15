@@ -1,3 +1,19 @@
+2009-09-15  Miguel Gómez  <magomez@igalia.com>
+
+	reviewed by: Andrés Gómez <agomez@igalia.com>
+
+	* doc/reference/gdigicam-sections.txt: Added new API for warning
+	messages.
+	* src/gdigicam-debug.h: Added new macros for warning messages.
+	* src/gdigicam-manager.h:
+	* src/gdigicam-manager.c:
+	(_g_digicam_manager_class_init): Added new "internal-error" signal
+	to deal with GStreamer errors.
+	(_g_digicam_manager_bus_callback): On GST_MESSAGE_ERROR message in
+	the bus callback, set the bin inmediately to NULL state and notify
+	any UI.
+	Fixes: NB#135225.
+
 2009-09-11  Javier Fernández  <jfernandez@igalia.com>
 
 	reviewed by: Andrés Gómez <agomez@igalia.com>

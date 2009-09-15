@@ -120,6 +120,7 @@ g_digicam_set_error
 <FILE>gdigicam-debug</FILE>
 <TITLE>Debugging functions</TITLE>
 G_DIGICAM_DEBUG
+G_DIGICAM_WARN
 G_DIGICAM_ERR
 </SECTION>
 

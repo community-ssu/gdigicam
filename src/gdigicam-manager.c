@@ -91,6 +91,7 @@ enum
     CAPTURE_END_SIGNAL,
     PREVIEW_SIGNAL,
     PICTURE_GOT_SIGNAL,
+    INTERNAL_ERROR_SIGNAL,
     LAST_SIGNAL
 };
 
@@ -4479,6 +4480,22 @@ _g_digicam_manager_class_init (GDigicamManagerClass *klass)
                       NULL, NULL,
                       g_cclosure_marshal_VOID__VOID,
                       G_TYPE_NONE, 0);
+
+    /**
+     * GDigicamManager::internal-error:
+     * @manager: the gdigicam manager
+     *
+     * Signal emited when an error is detected in the lower layers.
+     */
+
+    manager_signals[INTERNAL_ERROR_SIGNAL] =
+        g_signal_new ("internal-error",
+                      G_TYPE_FROM_CLASS (klass),
+                      G_SIGNAL_RUN_LAST,
+                      G_STRUCT_OFFSET (GDigicamManagerClass, internal_error),
+                      NULL, NULL,
+                      g_cclosure_marshal_VOID__VOID,
+                      G_TYPE_NONE, 0);
 }
 
 static void
@@ -4667,10 +4684,19 @@ _g_digicam_manager_bus_callback (GstBus     *bus,
         gchar *debug;
 
         gst_message_parse_error (message, &err, &debug);
-        G_DIGICAM_DEBUG ("Error: %s\n", err->message);
+        G_DIGICAM_DEBUG ("GDigicamManager::_g_digicam_manager_bus_callback: "
+                         "Error: %s.", err->message);
         g_error_free (err);
         g_free (debug);
-        /* FIXME: Should we do anything else? */
+
+	/* INTERNAL ERROR!!! STOP BIN!!! */
+	g_digicam_manager_stop_bin (G_DIGICAM_MANAGER (data), NULL);
+	/* Emit the internal error signal so any UI can handle it
+         * properly. */
+	g_signal_emit (G_OBJECT (data),
+                       manager_signals [INTERNAL_ERROR_SIGNAL],
+                       0);
+
         break;
     }
     case GST_MESSAGE_WARNING: {
@@ -4678,14 +4704,15 @@ _g_digicam_manager_bus_callback (GstBus     *bus,
         gchar *debug;
 
         gst_message_parse_warning (message, &err, &debug);
-        g_print ("Warning: %s\n", err->message);
+        G_DIGICAM_WARN ("GDigicamManagerPrivate::_g_digicam_manager_bus_callback: "
+                        "Warning: %s.", err->message);
         g_error_free (err);
         g_free (debug);
         break;
     }
     default:
-	/* not error and warning messages will be handled by
-	   the plugin */
+	/* Nor error neither warning messages will be handled by the
+         * plugin. */
 	if (NULL != priv->descriptor->handle_bus_message_func) {
 	    priv->descriptor->handle_bus_message_func (G_DIGICAM_MANAGER (data),
 						       message);

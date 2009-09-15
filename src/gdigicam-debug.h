@@ -60,6 +60,16 @@ extern "C" {
 #define G_DIGICAM_DEBUG(args...) ULOG_DEBUG(args)
 
 /**
+ * G_DIGICAM_WARN:
+ * @args...: variable arguments following the format as in printf
+ * function.
+ *
+ * Macro function to send warning messages via the chosen platform
+ * message logging engine.
+ */
+#define G_DIGICAM_WARN(args...) ULOG_WARN(args)
+
+/**
  * G_DIGICAM_ERR:
  * @args...: variable arguments following the format as in printf
  * function.
@@ -80,6 +90,16 @@ extern "C" {
  * message logging engine.
  */
 #define G_DIGICAM_DEBUG(args...) g_debug(args)
+
+/**
+ * G_DIGICAM_WARN:
+ * @args...: variable arguments following the format as in printf
+ * function.
+ *
+ * Macro function to send warning messages via the chosen platform
+ * message logging engine.
+ */
+#define G_DIGICAM_WARN(args...) g_warning(args)
 
 /**
  * G_DIGICAM_ERR:

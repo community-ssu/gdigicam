@@ -1063,6 +1063,8 @@ extern "C" {
 	void (*picture_got) (GDigicamManager *manager);
 
 	void (*image_preview) (GDigicamManager *manager, GdkPixbuf *value);
+
+	void (*internal_error) (GDigicamManager *manager);
     };
 
 

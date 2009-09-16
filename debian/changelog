@@ -1,3 +1,13 @@
+gdigicam (0.2.38.2) unstable; urgency=low
+
+  * Added the new internal-error signal to the GDigicamManager so on a
+    GST_MESSAGE_ERROR on the GStreamer bus, the bin will be set to NULL
+    state and this new signal will be emitted.
+  * Fixes: NB#135225 - Camera-ui seems to ignore gstreamer element
+    errors when recording video.
+
+ -- Andrés Gómez <agomez@igalia.com>  Wed, 16 Sep 2009 14:39:25 +0200
+
 gdigicam (0.2.38.1) unstable; urgency=low
 
   * Changed the metadata setter functions in the GStreamer CameraBin

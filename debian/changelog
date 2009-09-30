@@ -1,3 +1,14 @@
+gdigicam (0.2.40.1) unstable; urgency=low
+
+  * Fixed memory leak in the GDigicamManager picture-done signal
+    emission.
+  * Fixes: NB#137944 - Possible memory leak in camera-ui with repeated
+    capturing HQ picture to memory card.
+  * Added "G_DISABLE_CAST_CHECKS" and "G_DISABLE_ASSERT" C flags to
+    compilation with optimization.
+
+ -- Andrés Gómez <agomez@igalia.com>  Wed, 30 Sep 2009 18:53:33 +0200
+
 gdigicam (0.2.38.2) unstable; urgency=low
 
   * Added the new internal-error signal to the GDigicamManager so on a

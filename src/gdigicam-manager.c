@@ -4846,7 +4846,7 @@ _picture_done (GObject *gst_element,
     string = g_string_new (filename);
     g_signal_emit (G_OBJECT (user_data), manager_signals [PICT_DONE_SIGNAL], 0,
 		   string, &result);
-    g_string_free (string, FALSE);
+    g_string_free (string, TRUE);
 
     return result;
 }

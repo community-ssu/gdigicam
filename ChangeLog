@@ -1,3 +1,8 @@
+2009-09-23  Andres Gomez Garcia  <agomez@igalia.com>
+
+	* configure.ac: Added "G_DISABLE_CAST_CHECKS" and
+	"G_DISABLE_ASSERT" C flags to compilation with optimization.
+
 2009-09-15  Miguel Gómez  <magomez@igalia.com>
 
 	reviewed by: Andrés Gómez <agomez@igalia.com>

@@ -4507,7 +4507,7 @@ _g_digicam_manager_init (GDigicamManager *manager)
 
 
     priv = G_DIGICAM_MANAGER_GET_PRIVATE (manager);
-    g_assert (priv);
+    g_assert (NULL != priv);
 
     priv->gst_bin = NULL;
     priv->gst_pipeline = NULL;
@@ -4550,7 +4550,7 @@ _g_digicam_manager_finalize (GObject *object)
     manager = G_DIGICAM_MANAGER (object);
 
     priv = G_DIGICAM_MANAGER_GET_PRIVATE (manager);
-    g_assert (priv);
+    g_assert (NULL != priv);
 
     if (priv->capture_lock) {
         g_mutex_free (priv->capture_lock);

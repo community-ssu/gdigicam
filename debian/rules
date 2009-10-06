@@ -1,0 +1,220 @@
+#!/usr/bin/make -f
+# -*- makefile -*-
+# Sample debian/rules that uses debhelper.
+# GNU copyright 1997 to 1999 by Joey Hess.
+
+# Uncomment this to turn on verbose mode.
+#export DH_VERBOSE=1
+#DEB_DH_INSTALL_SOURCEDIR=debian/build
+
+#DEB_CONFIGURE_NORMAL_ARGS += --enable-gtk-doc --enable-tests
+
+# These are used for cross-compiling and for saving the configure script
+# from having to guess our platform (since we know it already)
+DEB_HOST_GNU_TYPE   ?= $(shell dpkg-architecture -qDEB_HOST_GNU_TYPE)
+DEB_BUILD_GNU_TYPE  ?= $(shell dpkg-architecture -qDEB_BUILD_GNU_TYPE)
+
+ifeq ($(ENABLE_MAEMO),yes)
+        PLATFORM=maemo
+else
+    ifeq ($(ENABLE_GNOME),yes)
+        PLATFORM=gnome
+    else
+        PLATFORM=detect
+    endif
+endif
+
+
+CFLAGS = -Wall -g
+
+ifneq (,$(findstring cov,$(DEB_BUILD_OPTIONS)))
+        CFLAGS += -O0
+	ENABLE_COVERAGE += --enable-coverage
+else
+	ifneq (,$(findstring noopt,$(DEB_BUILD_OPTIONS)))
+		CFLAGS += -O0
+	else
+		CFLAGS += -O2
+		ENABLE_OPT += --enable-opt
+	endif
+endif
+
+ifneq (,$(findstring log,$(DEB_BUILD_OPTIONS)))
+	ENABLE_LOG += --enable-log
+endif
+
+ifneq (,$(findstring performance,$(DEB_BUILD_OPTIONS)))
+        ENABLE_PERFORMANCE += --enable-performance
+endif
+
+ifeq (,$(findstring nodocs,$(DEB_BUILD_OPTIONS)))
+        ENABLE_GTK_DOC = --enable-gtk-doc
+endif
+
+ifeq (,$(findstring noexamples,$(DEB_BUILD_OPTIONS)))
+        ENABLE_EXAMPLES = --enable-examples
+endif
+
+ifeq (,$(findstring noconfigfile,$(DEB_BUILD_OPTIONS)))
+        ENABLE_CONFIG_FILE = --enable-config-file
+endif
+
+ifneq (,$(findstring check,$(DEB_BUILD_OPTIONS)))
+        ENABLE_TESTS = --enable-tests
+endif
+
+ifeq (,$(findstring nostrip,$(DEB_BUILD_OPTIONS)))
+        INSTALL_PROGRAM += -s
+endif
+
+# Use soft-float and thumb mode if it enabled.
+ifneq (,$(findstring thumb,$(DEB_BUILD_OPTIONS)))
+	CFLAGS += -mthumb
+endif
+
+
+config.status: configure
+	dh_testdir
+#	Add here commands to configure the package.
+	CFLAGS="$(CFLAGS)" ./configure              \
+               --host=$(DEB_HOST_GNU_TYPE)          \
+               --build=$(DEB_BUILD_GNU_TYPE)        \
+               --prefix=/usr                        \
+               --mandir=\$${prefix}/share/man       \
+               --infodir=\$${prefix}/share/info     \
+               --with-doc-dir=\$${prefix}/share/doc \
+               --with-platform=$(PLATFORM)          \
+               CFLAGS="$(CFLAGS)"                   \
+               LDFLAGS="-Wl,-z,defs"                \
+	       $(ENABLE_GTK_DOC)                    \
+	       $(ENABLE_EXAMPLES)                   \
+	       $(ENABLE_CONFIG_FILE)                \
+	       $(ENABLE_TESTS)                      \
+	       $(ENABLE_OPT)			    \
+	       $(ENABLE_LOG)			    \
+	       $(ENABLE_COVERAGE)		    \
+	       $(ENABLE_PERFORMANCE)
+
+configure: configure-stamp
+
+configure-stamp:
+	dh_testdir
+	./autogen.sh
+	touch configure-stamp
+
+build: build-stamp
+
+build-stamp:  config.status
+	dh_testdir
+
+# 	Add here commands to compile the package.
+	$(MAKE)
+# 	docbook-to-man debian/gdigicam.sgml > gdigicam.1
+
+	touch $@
+
+clean:
+	dh_testdir
+	dh_testroot
+	rm -f build-stamp
+
+# 	Add here commands to clean up after the build process.
+	[ ! -f Makefile ] || $(MAKE) distclean
+ifneq "$(wildcard /usr/share/misc/config.sub)" ""
+	cp -f /usr/share/misc/config.sub config.sub
+endif
+ifneq "$(wildcard /usr/share/misc/config.guess)" ""
+	cp -f /usr/share/misc/config.guess config.guess
+endif
+
+	dh_clean
+
+install: build
+	dh_testdir
+	dh_testroot
+	dh_clean -k
+	dh_installdirs
+
+# 	Add here commands to install the package into debian/build.
+	$(MAKE) install DESTDIR=$(CURDIR)/debian/build
+	sed -i 's_"gdigicam-manager.h"_<gdigicam/gdigicam-manager.h>_' $(CURDIR)/debian/build/usr/include/gdigicam-0.2/gdigicam/gst-camerabin/*.h
+
+#	for the -dbg package
+# 	rm -rf $(CURDIR)/debian/build/usr/lib/debug
+
+# 	clean the unnecessary files up
+# 	rm -rf $(CURDIR)/debian/build/usr/share/gtk-doc
+	mkdir -p $(CURDIR)/debian/build/usr/share/gtk-doc/html
+
+#	for the -examples package
+#	THIS IS AWFUL
+# 	mkdir -p $(CURDIR)/examples/.libs
+
+#	for the -tests package
+#	THIS IS AWFUL
+# 	mkdir -p $(CURDIR)/tests/.libs
+
+# Build architecture-independent files here.
+binary-indep: build install
+# We have nothing to do by default.
+
+# Build architecture-dependent files here.
+binary-arch: build install
+	dh_testdir
+	dh_testroot
+	dh_installchangelogs
+	dh_installdocs
+#	dh_installexamples
+	@if [ -d debian/build/usr/share/gtk-doc/html/gdigicam ]; then		\
+	  echo "Installing gtk-doc" ;						\
+          dh_install -v ;							\
+	else 									\
+	  echo "Skipping gtk-doc" ;						\
+          dh_install -v -Xgtk-doc ;						\
+	fi
+#	THIS IS AWFUL
+	@if [ -d tests/.libs/ ]; then							\
+	  echo "Installing GDigicam Unit Tests" ;					\
+	  install -D -m755 $(CURDIR)/tests/.libs/check_test 				\
+	    $(CURDIR)/debian/libgdigicam-tests/usr/lib/libgdigicam-tests/check_test ;	\
+	else										\
+	  echo "Skipping GDigicam Unit Tests" ;						\
+	fi
+	install -D -m755 $(CURDIR)/debian/libgdigicam_tests_launcher 			\
+		$(CURDIR)/debian/libgdigicam-tests/usr/bin/libgdigicam_tests_launcher
+	@if [ -d tests/gst-camerabin/.libs/ ]; then					\
+	  echo "Installing GDigicam CameraBin Unit Tests" ;				\
+	  install -D -m755 $(CURDIR)/tests/gst-camerabin/.libs/check_test 				\
+	    $(CURDIR)/debian/libgdigicam-gst-camerabin-tests/usr/lib/libgdigicam-gst-camerabin-tests/check_test ;	\
+	else										\
+	  echo "Skipping GDigicam CameraBin Unit Tests" ;				\
+	fi
+	install -D -m755 $(CURDIR)/debian/libgdigicam_gst_camerabin_tests_launcher 	\
+		$(CURDIR)/debian/libgdigicam-gst-camerabin-tests/usr/bin/libgdigicam_gst_camerabin_tests_launcher
+	dh_installmenu
+#	dh_installdebconf
+#	dh_installlogrotate
+#	dh_installemacsen
+#	dh_installpam
+#	dh_installmime
+#	dh_python
+#	dh_installinit
+#	dh_installcron
+#	dh_installinfo
+	dh_desktop
+	dh_installman
+	dh_link
+	dh_strip --dbg-package=libgdigicam0 --dbg-package=libgdigicam-gst-camerabin0
+	dh_compress
+	dh_fixperms
+#	dh_perl
+	dh_makeshlibs
+	dh_installdeb
+	dh_shlibdeps
+	dh_gencontrol
+	dh_md5sums
+	dh_builddeb
+
+binary: binary-indep binary-arch
+.PHONY: build clean binary-indep binary-arch binary install
+

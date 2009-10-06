@@ -1,0 +1,306 @@
+gdigicam (0.2.36.2+0m5) unstable; urgency=low
+
+  * This entry has been added by BIFH queue processor
+    Suffix +0m5 added to package revision
+
+ -- Harri Mahonen <ext-harri.mahonen@nokia.com>  Tue, 08 Sep 2009 13:43:47 +0300
+
+gdigicam (0.2.36.2) unstable; urgency=low
+
+  * GTK-Doc completed.
+
+ -- Alexander Bokovoy <alexander.bokovoy@nokia.com>  Fri, 04 Sep 2009 15:12:09 +0300
+
+gdigicam (0.2.36.1) unstable; urgency=low
+
+  * Licence change
+
+ -- Alexander Bokovoy <alexander.bokovoy@nokia.com>  Tue,  1 Sep 2009 11:45:00 +0300
+
+gdigicam (0.2.35.1) unstable; urgency=low
+
+  * Fixes: NB#123540 - White dots across borders of the buttons in
+    dialogs for Camera application.
+  * Fixes: NB#134625 - Video recording does not record sound properly.
+
+ -- Kristiina Hietanen <kristiina.hietanen@nokia.com>  Tue, 25 Aug 2009 16:38:43 +0300
+
+gdigicam (0.2.34.2) unstable; urgency=low
+
+  * Fixes: NB#119412 - Flash does not follow scene modes settings.
+
+ -- Kristiina Hietanen <kristiina.hietanen@nokia.com>  Thu, 20 Aug 2009 12:36:20 +0300
+
+gdigicam (0.2.34.1) unstable; urgency=low
+
+  * Changed the default video encoder in the configuration file of the
+    GStreamer CameraBin external library plugin.
+  * Added a new bin in which to encapsulate the audio encoder and a caps
+    filter in the creation of the GstElement with the GStreamer
+    CameraBin external library plugin so the audio filter settings will
+    be really working now.
+  * Added and removed some time stamp performance measurement messages
+    in the GStreamer CameraBin external library plugin.
+  * Fixes: NB#131499 - Camera usability: Processing image screen should
+    not be displayed before image has been taken.
+
+ -- Kristiina Hietanen <kristiina.hietanen@nokia.com>  Fri, 14 Aug 2009 14:43:42 +0300
+
+gdigicam (0.2.33.1) unstable; urgency=low
+
+  * Added a new configuration file to the GStreamer CameraBin external
+    library plugin so the user will be able to tune some default
+    settings when creating a new GstElement through
+    g_digicam_camerabin_element_new and the new "--enable-config-file"
+    compilation flag to give such feature to the library or not.
+
+ -- Kristiina Hietanen <kristiina.hietanen@nokia.com>  Wed, 12 Aug 2009 16:49:45 +0300
+
+gdigicam (0.2.32.2) unstable; urgency=low
+
+  * Modified audio encoder capabilities to set proper ones.
+
+ -- Kristiina Hietanen <kristiina.hietanen@nokia.com>  Wed, 05 Aug 2009 12:44:09 +0300
+
+gdigicam (0.2.32.1) unstable; urgency=low
+
+  * Fixes: NB#130159 - Application crashes if changed to
+    Video mode.
+
+ -- Kristiina Hietanen <kristiina.hietanen@nokia.com>  Tue, 04 Aug 2009 15:55:01 +0300
+
+gdigicam (0.2.30.1) unstable; urgency=low
+
+  * Added new API to the GDigicam Manager in order to enable or disable
+    the supposed preview capability of the GStreamer bin. Refactored
+    from the old public and wrong API from the GStreamer CameraBin
+    external library plugin.
+  * Fixes: NB#129257 - gdigicam must copy memory for snapshot image.
+
+ -- Kristiina Hietanen <kristiina.hietanen@nokia.com>  Fri, 24 Jul 2009 14:49:00 +0300
+
+gdigicam (0.2.29.1) unstable; urgency=low
+
+  * The autofocusing feature is now available in video mode too.
+
+ -- Kristiina Hietanen <kristiina.hietanen@nokia.com>  Thu, 16 Jul 2009 02:56:35 +0300
+
+gdigicam (0.2.28.1) unstable; urgency=low
+
+  * Removed setting the device make and model, as part of NB#110726
+    fixing.
+
+ -- Kristiina Hietanen <kristiina.hietanen@nokia.com>  Thu, 09 Jul 2009 18:30:14 +0300
+
+gdigicam (0.2.27.3) unstable; urgency=low
+
+  * Added country, city and suburb geotags to the GStreamer CameraBin
+    external library plugin and removed previous tag used for
+    geolocation.
+
+ -- Kristiina Hietanen <kristiina.hietanen@nokia.com>  Thu, 02 Jul 2009 01:55:13 +0300
+
+gdigicam (0.2.27.2) unstable; urgency=low
+
+  * Added the preview capability to the GStreamer CameraBin external
+    library plugin. This is accessed directly to the plugin and, in the
+    future, the public API should have to be migrated to the
+    GDigicamManager.
+
+ -- Kristiina Hietanen <kristiina.hietanen@nokia.com>  Wed, 01 Jul 2009 16:35:35 +0300
+
+gdigicam (0.2.27.1) unstable; urgency=low
+
+  * Aspect ratio and resolution are reset after changing the operation
+    mode.
+  * Added members to enumerations in order to be able to check for valid
+    values and added methods to do it.
+
+ -- Kristiina Hietanen <kristiina.hietanen@nokia.com>  Wed, 01 Jul 2009 01:06:20 +0300
+
+gdigicam (0.2.25.3) unstable; urgency=low
+
+  * Added a new interface to the GDigicamManager in order to set the
+    aspect ratio and resolution in a single call.
+
+ -- Kristiina Hietanen <kristiina.hietanen@nokia.com>  Fri, 19 Jun 2009 03:45:05 +0300
+
+gdigicam (0.2.25.2) unstable; urgency=low
+
+  * Fixes: NB#113346 - Frame rate for recording WVGA video should be 25
+    fps.
+
+ -- Kristiina Hietanen <kristiina.hietanen@nokia.com>  Thu, 18 Jun 2009 04:05:55 +0300
+
+gdigicam (0.2.25.1) unstable; urgency=low
+
+  * The GStreamer CameraBin external library plugin sets the mode
+    everytime the camerabin changes to playing state now in order to
+    precreate the capturing elements.
+  * Refactored to send the signals from the GStreamer CameraBin external
+    library plugin in a lazy way.
+  * Added flags to compile printing performance measurement time stamps.
+
+ -- Kristiina Hietanen <kristiina.hietanen@nokia.com>  Tue, 17 Jun 2009 00:53:28 +0300
+
+gdigicam (0.2.24.1) unstable; urgency=low
+
+  * Support to have conditional logging support has been added.
+  * The high resolution in 4:3 has been modified slightly to keep the
+    aspect ratio as it has happened with the 16:9 resolution.
+  * Fixes: NB#120395 - Camera UI sets too wide resolution in 16:9 mode,
+    causing extra image scale operation.
+
+ -- Kristiina Hietanen <kristiina.hietanen@nokia.com>  Tue, 09 Jun 2009 10:15:48 +0300
+
+gdigicam (0.2.23.1) unstable; urgency=low
+
+  * Fixes: NB#115033 - 5 MP image is scaled.
+
+ -- Kristiina Hietanen <kristiina.hietanen@nokia.com>  Tue, 02 Jun 2009 14:04:13 +0300
+
+gdigicam (0.2.21.1) unstable; urgency=low
+
+  * Fixes: NB#116277 - Still image height should be multiple of 8 due to
+    image post processing element.
+
+ -- Kristiina Hietanen <kristiina.hietanen@nokia.com>  Fri, 15 May 2009 04:01:58 +0300
+
+gdigicam (0.2.19.1) unstable; urgency=low
+
+  * Added a new element to the camerabin pipeline for the image
+    postprocessing in the GStreamer CameraBin external library.
+
+ -- Kristiina Hietanen <kristiina.hietanen@nokia.com>  Sun, 03 May 2009 19:34:16 +0300
+
+gdigicam (0.2.16.1) unstable; urgency=low
+
+  * The WVGA width resolution when recording videos with the GStreamer
+    CameraBin external library has been modified from 848 to 800 because
+    of interoperability reasons while some problem is held in Xv.
+
+ -- Kristiina Hietanen <kristiina.hietanen@nokia.com>  Thu, 16 Apr 2009 02:08:08 +0300
+
+gdigicam (0.2.11.2) unstable; urgency=low
+
+  * Fixes: NB#104744.
+
+ -- Kristiina Hietanen <kristiina.hietanen@nokia.com>  Fri, 06 Mar 2009 12:14:25 +0300
+
+gdigicam (0.2.11.1) unstable; urgency=low
+
+  * Removed dependency from gstreamer-plugins-camera and added dependency
+    from gstreamer-plugins-bad.
+
+ -- Kristiina Hietanen <kristiina.hietanen@nokia.com>  Thu, 05 Mar 2009 18:52:55 +0300
+
+gdigicam (0.2.9.1) unstable; urgency=low
+
+  * The insertion of metadata tags in the GStreamer CameraBin external
+    library has been updated.
+  * Corrected a bug related to trying to set invalid aspect ratio and
+    resolution values when changing between still picture and video
+    mode in the GStreamer CameraBin external library.
+
+ -- Kristiina Hietanen <kristiina.hietanen@nokia.com>  Fri, 20 Feb 2009 02:39:36 +0200
+
+gdigicam (0.2.8.1) unstable; urgency=low
+
+  * Ggeo-location-name tag added and set.
+  * Added a workaround that allows to actually set the same resolution
+    again.
+
+ -- Kristiina Hietanen <kristiina.hietanen@nokia.com>  Fri, 13 Feb 2009 02:35:24 +0200
+
+gdigicam (0.2.6.2) unstable; urgency=low
+
+  * The API in the GStreamer CameraBin external library has changed to
+    set the viewfinder pointer in the descriptor from the GStreamer
+    CameraBin external library and the unit tests have been fixed to
+    reflect this change.
+
+ -- Kristiina Hietanen <kristiina.hietanen@nokia.com>  Thu, 05 Feb 2009 12:12:23 +0200
+
+gdigicam (0.2.6.1) unstable; urgency=low
+
+  * Added the possibility to handle the GStreamer messages bus in a
+    custom function in the descriptor. The GStreamer CameraBin external
+    library handles the autofocus-done message in its custom function
+    now.
+  * Generic GStreamer messages bus handler deals just with generic
+    messages now.
+  * Problem in _set_locks function fixed and locks reset when a picture
+    is taken.
+  * Added the right camerabin mode when setting the auto scene mode.
+  * After asking for the capture of a picture, it is sent a signal to
+    avoid the picture preview in the GStreamer CameraBin external
+    library.
+  * Removed unused code for _set_focus_mode in the GStreamer CameraBin
+    external library.
+  * In the GStreamer CameraBin external library, _set_exposure_mode has
+    been changed in order to avoid asking for the focus if we are in
+    video mode.
+  * Fixes: NB#98567.
+
+ -- Kristiina Hietanen <kristiina.hietanen@nokia.com>  Fri, 30 Jan 2009 01:52:11 +0200
+
+gdigicam (0.2.5.1) unstable; urgency=low
+
+  * Added GST_TAG_CLASSIFICATION for classification tag when setting
+    metadata with the GStreamer CameraBin.
+  * Added the creation of a default GStreamer CameraBin in its external
+    library.
+  * Updated the Gtk-Doc.
+  * Created Unit Tests for the GStreamer CameraBin external library.
+  * Added the new pict-done signal to the GDigicam Manager.
+  * Updated the way the to set resolutions. Now we can set always 30fps
+    and the aspect ratio should be partially working in the GStreamer
+    CameraBin external library.
+
+ -- Kristiina Hietanen <kristiina.hietanen@nokia.com>  Fri, 23 Jan 2009 13:25:42 +0200
+
+gdigicam (0.2.4.1) unstable; urgency=low
+
+  * Redefined macros for frames per second on every aspect
+    ratio/resolution mode and fixed swapped parameters.
+  * Added the colorkey in order to perform transparency.
+
+ -- Kristiina Hietanen <kristiina.hietanen@nokia.com>  Fri, 16 Jan 2009 02:09:20 +0200
+
+gdigicam (0.2.3.1) unstable; urgency=low
+
+  * Finished the proper implementation of the setting flash method.
+
+ -- Kristiina Hietanen <kristiina.hietanen@nokia.com>  Fri, 09 Jan 2009 18:51:13 +0200
+
+gdigicam (0.2.1.1) unstable; urgency=low
+
+  * Version update.
+
+ -- Kristiina Hietanen <kristiina.hietanen@nokia.com>  Mon, 05 Jan 2009 13:38:26 +0200
+
+gdigicam (0.1.51.3) unstable; urgency=low
+
+  * Added hack to avoid missing compiling path on external libraries.
+  * Fixed wrong name in g_digicam_camerabin_manager_new function.
+
+ -- Kristiina Hietanen <kristiina.hietanen@nokia.com>  Wed, 17 Dec 2008 11:32:48 +0200
+
+gdigicam (0.1.40.1) unstable; urgency=low
+
+  * w40 release.
+
+ -- Kristiina Hietanen <kristiina.hietanen@nokia.com>  Thu, 25 Sep 2008 18:24:19 +0300
+
+gdigicam (0.1.34) unstable; urgency=low
+
+  * w34 release.
+
+ -- Pekka Marjola <pekka.marjola@nokia.com>  Thu, 21 Aug 2008 21:15:00 +0300
+
+gdigicam (0.1.31-1) unstable; urgency=low
+
+  * Initial version
+
+ -- Pekka Marjola <pekka.marjola@nokia.com>  Thu, 3 Apr 2008 18:55:38 +0300
+

@@ -1,0 +1,8 @@
+1. PURPOSE
+***************************************************************************
+
+This file contains a brief documentation of each test case considered.
+Please, whenever you add new test case, add its documentation here to
+the list of tests (Section 2). Use the following example as a template:
+
+---------------------------------------------------------------------------

@@ -1,0 +1,69 @@
+1. PURPOSE
+***************************************************************************
+
+This file contains a brief documentation of each test case considered.
+Please, whenever you add new test case, add its documentation here to
+the list of tests (Section 2). Use the following example as a template:
+
+----------------------------------------------------------------------------------------
+- gdigicam-manager: This widget is intended to be a container to another
+  widgets that could show a label for the captionized widget.
+
+   - Property "status": [TODO] 
+
+         - Errors detected: 
+
+         1. Test regular values:
+            - 
+
+         2. Test limit values:
+            - 
+
+         3. Test invalid values:
+            - 
+
+   - gdigicam_manager_set_status: checks if the status of the
+     widget is set correctly
+
+         - Errors detected: none.
+
+         1. Test that setting a valid HildonCaptionStatus works
+            correctly.
+            a) Set the status GDIGICAM_MANAGER_MANDATORY
+
+         2. Test that invalid values do not cause problems.
+            a) Set the status 8
+            b) The HildonCaption is NULL
+            c) The first argument is a GtkHbox instead of a
+            HildonCaption
+
+   - gdigicam_manager_get_status: checks if the status of the
+     widget is got correctly
+
+         - Errors detected: none.
+
+         1. Test that getting a previously set valid
+            HildonCaptionStatus works correctly
+            a) Get the default status GDIGICAM_MANAGER_OPTIONAL
+            b) Get the status GDIGICAM_MANAGER_MANDATORY set with
+            set_status
+            c) Get the status GDIGICAM_MANAGER_OPTIONAL set with
+            set_property
+
+         2. Test that invalid values do not cause problems
+            a) The HildonCaption is NULL
+            b) The first argument is a GtkHbox instead of a
+            HildonCaption
+
+   - gdigicam_manager_new: [TODO] 
+
+         - Errors detected: 
+
+         1. Test regular values:
+            - 
+
+         2. Test limit values:
+            - 
+
+         3. Test invalid values:
+            - 

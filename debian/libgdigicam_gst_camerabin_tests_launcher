@@ -1,0 +1,10 @@
+#!/bin/sh
+# This will run GDigicam Unit Tests.
+UNIT_TESTS_BINARY=/usr/lib/libgdigicam-gst-camerabin-tests/check_test
+# OUTPUT_FILE=./check_output.log
+OUTPUT_FILE=/dev/null
+
+#CK_FORK=no ${UNIT_TESTS_BINARY} > ${OUTPUT_FILE} 2>&1
+# CK_FORK=yes ${UNIT_TESTS_BINARY} > ${OUTPUT_FILE} 2>&1
+CK_FORK=yes CK_DEFAULT_TIMEOUT=5 ${UNIT_TESTS_BINARY}
+

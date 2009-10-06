@@ -1,0 +1,3 @@
+examples/Makefile               usr/share/gdigicam-examples/
+examples/.libs/*test_app        usr/lib/gdigicam-examples/
+examples/*.c 	                usr/share/gdigicam-examples/

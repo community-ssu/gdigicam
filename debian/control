@@ -1,0 +1,116 @@
+Source: gdigicam
+Section: libs
+Priority: optional
+Maintainer: Alexander Bokovoy <alexander.bokovoy@nokia.com>
+Build-Depends: debhelper (>= 4.0.0), libc6-dev (>= 2.5), libglib2.0-dev (>= 2.6.1), gtk-doc-tools, libgstreamer0.10-dev, libgstreamer-plugins-base0.10-dev, gstreamer0.10-plugins-bad-dev, libgconf2-dev, libgtk2.0-dev, check, libhildon1-dev, libosso-dev
+Standards-Version: 3.8.0
+
+Package: libgdigicam0
+Section: libs
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: GDigicam library
+ GDigicam is a library to control digicam oriented GStreamer bins.
+ .
+ This package contains the shared libraries.
+
+Package: libgdigicam-dev
+Section: libdevel
+Architecture: any
+Priority: extra
+Depends: libgdigicam0 (>= ${source:Version})
+Description: GDigicam development files
+ GDigicam is a library to control digicam oriented GStreamer bins.
+ .
+ This package contains the header files and static libraries which are
+ needed for developing applications using GDigicam.
+
+Package: libgdigicam0-dbg
+Section: libdevel
+Architecture: any
+Priority: extra
+Depends: libgdigicam0 (= ${binary:Version})
+Description: Debug symbols for GDigicam library
+ GDigicam is a library to control digicam oriented GStreamer bins.
+ .
+ This package contains symbol tables for debugging.
+
+Package: libgdigicam-tests
+Section: misc
+Architecture: any
+Depends: libgdigicam0 (= ${binary:Version}), ${shlibs:Depends}, gstreamer0.10-plugins-base, gstreamer0.10-x
+Description: Unit tests for GDigicam
+ GDigicam is a library to control digicam oriented GStreamer bins.
+ .
+ This package contains the unit tests for the GDigicam library.
+
+Package: libgdigicam-doc
+Section: doc
+Architecture: all
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: GDigicam library documentation
+ GDigicam is a library to control digicam oriented GStreamer bins.
+ .
+ This package contains the HTML documentation for the GDigicam library
+ in /usr/share/doc/libgdigicam-doc/ .
+
+Package: gdigicam-examples
+Section: x11
+Architecture: any
+Depends: ${shlibs:Depends}, gstreamer0.10-plugins-base, gstreamer0.10-x
+Description: Examples files for GDigicam library
+ GDigicam is a library to control digicam oriented GStreamer bins.
+ .
+ This package contains the examples files and a demonstration program
+ for GDigicam.
+
+Package: libgdigicam-gst-camerabin0
+Section: libs
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: GDigicam GStreamer CameraBin library
+ GDigicam is a library to control GStreamer camerabin plugin.
+ .
+ This package contains the shared libraries.
+
+Package: libgdigicam-gst-camerabin-dev
+Section: libdevel
+Architecture: any
+Priority: extra
+Depends: libgdigicam-gst-camerabin0 (>= ${source:Version})
+Description: GDigicam GStreamer CameraBin development files
+ GDigicam is a library to control GStreamer camerabin plugin.
+ .
+ This package contains the header files and static libraries which are
+ needed for developing applications using GDigicam GStreamer CameraBin.
+
+Package: libgdigicam-gst-camerabin0-dbg
+Section: libdevel
+Architecture: any
+Priority: extra
+Depends: libgdigicam-gst-camerabin0 (= ${binary:Version})
+Description: Debug GStreamer CameraBin symbols for GDigicam library
+ GDigicam is a library to control GStreamer camerabin plugin.
+ .
+ This package contains symbol tables for debugging.
+
+Package: libgdigicam-gst-camerabin-tests
+Section: misc
+Architecture: any
+Depends: libgdigicam0 (= ${binary:Version}), ${shlibs:Depends}, gstreamer0.10-plugins-base, gstreamer0.10-x
+Description: Unit tests for GDigicam GStreamer CameraBin
+ GDigicam is a library to control digicam oriented GStreamer bins.
+ .
+ This package contains the unit tests for the GDigicam GStreamer
+ CameraBin library.
+
+Package: libgdigicam-gst-camerabin-doc
+Section: doc
+Architecture: all
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: GDigicam GStreamer CameraBin library documentation
+ GDigicam is a library to control digicam oriented GStreamer bins.
+ .
+ This package contains the HTML documentation for the GDigicam
+ GStreamer CameraBin library in
+ /usr/share/doc/libgdigicam-gst-camerabin-doc/ .

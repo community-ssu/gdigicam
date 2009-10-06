@@ -1,0 +1,23 @@
+<SECTION>
+<FILE>gdigicam-camerabin</FILE>
+GDigicamCamerabinMetadata
+GDigicamCamerabinModeHelper
+GDigicamCamerabinFlashModeHelper
+GDigicamCamerabinFocusModeHelper
+GDigicamCamerabinFocusRegionPatternHelper
+GDigicamCamerabinExposureModeHelper
+GDigicamCamerabinExposureCompHelper
+GDigicamCamerabinIsoSensitivityHelper
+GDigicamCamerabinWhitebalanceModeHelper
+GDigicamCamerabinQualityHelper
+GDigicamCamerabinAspectRatioResolutionHelper
+GDigicamCamerabinLocksHelper
+GDigicamCamerabinZoomHelper
+GDigicamCamerabinPictureHelper
+GDigicamCamerabinVideoHelper
+<TITLE>GDigicam CameraBin</TITLE>
+g_digicam_camerabin_descriptor_new
+g_digicam_camerabin_element_new
+g_digicam_camerabin_enable_preview
+</SECTION>
+

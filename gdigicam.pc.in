@@ -1,0 +1,16 @@
+prefix=@prefix@
+exec_prefix=${prefix}
+libdir=${exec_prefix}/lib
+includedir=${prefix}/include
+apiversion=@GDIGICAM_API_VERSION@
+glibrequired=@GLIB_REQUIRED@
+gstrequired=@GST_REQUIRED@
+gstmajorminor=@GST_MAJORMINOR@
+
+
+Name: gdigicam
+Description: GDigicam Library
+Version: @VERSION@
+Libs: -L${libdir} -lgdigicam-${apiversion}
+Cflags: -I${includedir}/gdigicam-${apiversion}
+Requires: glib-2.0 >= ${glibrequired} gobject-2.0 gstreamer-${gstmajorminor} >= ${gstrequired}  gstreamer-base-${gstmajorminor}  >= ${gstrequired} gstreamer-plugins-base-${gstmajorminor}  >= ${gstrequired}

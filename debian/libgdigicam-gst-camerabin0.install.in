@@ -1,0 +1,2 @@
+debian/build/usr/lib/libgdigicam-gst-camerabin-@GDIGICAM_API_VERSION@.so.*       usr/lib
+debian/build/etc/gdigicam/gdigicam-camerabin.conf                                etc/gdigicam

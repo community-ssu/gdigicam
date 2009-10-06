@@ -1,0 +1,49 @@
+<?xml version="1.0"?>
+<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.1.2//EN" 
+               "http://www.oasis-open.org/docbook/xml/4.1.2/docbookx.dtd" [
+<!ENTITY version SYSTEM "version.xml">
+]>
+
+<book id="index" xmlns:xi="http://www.w3.org/2003/XInclude">
+  <bookinfo>
+    <title>GDigicam &version; Reference Manual</title>
+    <releaseinfo>Version &version;</releaseinfo>
+
+    <copyright>
+      <year>2008 - 2009</year>
+      <holder>Nokia</holder>
+    </copyright>
+  </bookinfo>
+
+  <chapter>
+    <title>GDigicam Overview</title>
+
+    <para>GDigicam provides a high level Glib/GObject based library
+    to easily access a digicam like GStreamer pipeline, simplifying
+    the way in which a developer would create an application with
+    such features.</para>
+    <para>GDigicam includes a custom descriptor which provides the
+    proper interfaces to interact with any GStreamer pipeline as if it
+    would be a digicam featured pipeline. Therefore, a descriptor with
+    a simple pipeline created from the GStreamer base plugins is
+    included and further and more complete descriptors could be
+    created by the developer or through external plugins.</para>
+    <para>GDigicam was inspired in the OpenMAX 1.0 interface draft and
+    is curretly in heavy development.</para>
+
+  </chapter>
+
+  <chapter>
+    <title>GDigicam Objects</title>
+    <xi:include href="xml/gdigicam-manager.xml"/>
+  </chapter>
+
+  <chapter>
+    <title>GDigicam Utilities</title>
+    <xi:include href="xml/gdigicam-util.xml"/>
+    <xi:include href="xml/gdigicam-error.xml"/>
+    <xi:include href="xml/gdigicam-debug.xml"/>
+    <xi:include href="xml/gdigicam-version.xml"/>
+  </chapter>
+
+</book>

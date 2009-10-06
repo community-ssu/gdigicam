@@ -1,0 +1,3 @@
+debian/build/usr/include/gdigicam-@GDIGICAM_API_VERSION@/gdigicam/*.h    usr/include/gdigicam-@GDIGICAM_API_VERSION@/gdigicam/
+debian/build/usr/lib/libgdigicam-@GDIGICAM_API_VERSION@.so              usr/lib/
+debian/build/usr/lib/pkgconfig/gdigicam-@GDIGICAM_API_VERSION@.pc       usr/lib/pkgconfig/

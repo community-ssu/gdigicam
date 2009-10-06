@@ -1,0 +1,9 @@
+2009-09-04  Andrés Gómez  <agomez@igalia.com>
+
+	* doc/reference/gdigicam-docs.sgml:
+	* doc/reference/gst-camerabin/gdigicam-gst-camerabin-docs.sgml:
+	* ext/gst-camerabin/gdigicam-camerabin.c:
+	* ext/gst-camerabin/gdigicam-camerabin.h:
+	* src/gdigicam-error.c:
+	GTK-Doc completed.
+

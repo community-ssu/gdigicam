@@ -1,0 +1,32 @@
+<?xml version="1.0"?>
+<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.1.2//EN" 
+               "http://www.oasis-open.org/docbook/xml/4.1.2/docbookx.dtd" [
+<!ENTITY version SYSTEM "version.xml">
+]>
+
+<book id="index" xmlns:xi="http://www.w3.org/2003/XInclude">
+  <bookinfo>
+    <title>GDigicam GStreamer CameraBin &version; Reference Manual</title>
+    <releaseinfo>Version &version;</releaseinfo>
+
+    <copyright>
+      <year>2008-2009</year>
+      <holder>Nokia</holder>
+    </copyright>
+  </bookinfo>
+
+  <chapter>
+    <title>GDigicam GStreamer CameraBin Overview</title>
+
+    <para>GDigicam GStreamer CameraBin provides a custom GDigicam
+    descriptor to be used directly in a GDigicamManager and which
+    makes use of the GStreamer camerabin plugin.</para>
+
+  </chapter>
+
+  <chapter>
+    <title>GDigicam GStreamer CameraBin Utilities</title>
+    <xi:include href="xml/gdigicam-camerabin.xml"/>
+  </chapter>
+
+</book>

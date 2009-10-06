@@ -1,0 +1,11 @@
+prefix=@prefix@
+exec_prefix=${prefix}
+libdir=${exec_prefix}/lib
+includedir=${prefix}/include/gdigicam-@GDIGICAM_API_VERSION@
+
+Name: GDigicam GStreamer CameraBin Library
+Description: GDigicam for GStreamer's camerabin plugin library
+Requires: gdigicam-@GDIGICAM_API_VERSION@
+Version: @VERSION@
+Libs: -L${libdir} -lgdigicam-gst-camerabin-@GDIGICAM_API_VERSION@
+Cflags: -I${includedir}

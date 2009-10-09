@@ -4269,7 +4269,7 @@ g_digicam_manager_descriptor_copy (const GDigicamDescriptor *orig_descriptor)
     descriptor->set_iso_sensitivity_mode_func = orig_descriptor->set_iso_sensitivity_mode_func;
     descriptor->supported_white_balance_modes = orig_descriptor->supported_white_balance_modes;
     descriptor->set_white_balance_mode_func = orig_descriptor->set_white_balance_mode_func;
-    descriptor->supported_aspect_ratios = orig_descriptor->supported_metering_modes;
+    descriptor->supported_metering_modes = orig_descriptor->supported_metering_modes;
     descriptor->set_metering_mode_func = orig_descriptor->set_metering_mode_func;
     descriptor->supported_aspect_ratios = orig_descriptor->supported_aspect_ratios;
     descriptor->set_aspect_ratio_func = orig_descriptor->set_aspect_ratio_func;

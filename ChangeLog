@@ -1,3 +1,9 @@
+2009-10-09  Andrés Gómez  <agomez@igalia.com>
+
+	* src/gdigicam-manager.c:
+	(g_digicam_manager_descriptor_copy): Fixed wrong copy on supported
+	metering modes, overwriting the supported aspect ratios.
+
 2009-09-30  Javier Fernández  <jfernandez@igalia.com>
 
 	reviewed by: Andrés Gómez <agomez@igalia.com>

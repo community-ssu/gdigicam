@@ -1,5 +1,21 @@
 2009-10-09  Andrés Gómez  <agomez@igalia.com>
 
+	* tests/check-gdigicam-manager.c:
+	(test_set_get_iso_sensitivity_mode_regular): Replaced the numeric
+	value to define.
+	(test_set_get_white_balance_mode_limit): Changed the return value
+	to check for boolean and error.
+	(test_set_get_white_balance_mode_regular): Replaced the numeric
+	value to define.
+	(test_set_get_focus_mode_invalid): Fixed checking the result
+	value.
+	(test_set_aspect_ratio_resolution_limit): Fixed the return values
+	check.
+	(test_set_aspect_ratio_resolution_regular): Corrected the
+	expression value for gotten_aspect_ratio.
+	Added defines for test values for white balance and ISO
+	sensitivity.
+
 	* src/gdigicam-manager.c:
 	(g_digicam_manager_descriptor_copy): Fixed wrong copy on supported
 	metering modes, overwriting the supported aspect ratios.

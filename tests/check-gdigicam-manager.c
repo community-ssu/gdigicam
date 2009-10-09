@@ -44,6 +44,8 @@
 #define NORMAL_ZOOM_MACRO_DISABLED 8
 #define NORMAL_ZOOM_MACRO_ENABLED 2
 #define NORMAL_OPTICAL_ZOOM_MACRO_DISABLED 5
+#define WHITE_BALANCE_TEST_VALUE 4
+#define ISO_SENSITIVITY_TEST_VALUE 3
 
 static GDigicamManager *no_featured_manager = NULL;
 static GDigicamManager *minimum_featured_manager = NULL;
@@ -1030,7 +1032,7 @@ START_TEST (test_set_get_iso_sensitivity_mode_regular)
                                          NULL);
     fail_if (!g_digicam_manager_set_iso_sensitivity_mode (full_featured_manager,
                                                    G_DIGICAM_ISOSENSITIVITYMODE_MANUAL,
-                                                   3,
+                                                   ISO_SENSITIVITY_TEST_VALUE,
                                                    &error,
                                                    NULL),
              "gdigicam-manager: an error has happened.");
@@ -1046,7 +1048,7 @@ START_TEST (test_set_get_iso_sensitivity_mode_regular)
     fail_if (G_DIGICAM_ISOSENSITIVITYMODE_MANUAL != gotten_iso_sensitivity_mode,
              "gdigicam-manager: the iso_sensitivity mode was not "
              "the previously provided.");
-    fail_if (3 != gotten_level,
+    fail_if (ISO_SENSITIVITY_TEST_VALUE != gotten_level,
              "gdigicam-manager: the level was not the \"unset\" "
              "value, it was \"%d\".",
              gotten_level);
@@ -1058,7 +1060,7 @@ START_TEST (test_set_get_iso_sensitivity_mode_regular)
     /* Test 2 */
     fail_if (!g_digicam_manager_set_iso_sensitivity_mode (full_featured_manager,
                                                    G_DIGICAM_ISOSENSITIVITYMODE_AUTO,
-                                                   3,
+                                                   ISO_SENSITIVITY_TEST_VALUE,
                                                    &error,
                                                    NULL),
              "gdigicam-manager: an error has happened.");
@@ -1074,8 +1076,9 @@ START_TEST (test_set_get_iso_sensitivity_mode_regular)
     fail_if (G_DIGICAM_ISOSENSITIVITYMODE_AUTO != gotten_iso_sensitivity_mode,
              "gdigicam-manager: the iso_sensitivity mode was not "
              "the previously provided.");
-    /* TODO:check why this case is failing */
-    fail_if (3 != gotten_level,
+    /* TODO: check why this case is failing. Can we set the value in
+     * Automode ? */
+    fail_if (ISO_SENSITIVITY_TEST_VALUE != gotten_level,
              "gdigicam-manager: the level was not "
              "the previously provided.");
     fail_if (NULL != error,
@@ -1317,12 +1320,12 @@ START_TEST (test_set_get_white_balance_mode_limit)
                                          full_featured_camera_bin,
                                          full_featured_descriptor,
                                          NULL);
-    fail_if (g_digicam_manager_get_white_balance_mode
+    fail_if (!g_digicam_manager_get_white_balance_mode
              (full_featured_manager,
               &gotten_white_balance_mode,
               &gotten_level,
               &error),
-             "gdigicam-manager: an error has not happened.");
+             "gdigicam-manager: an error has happened.");
     fail_if (0 != gotten_white_balance_mode,
              "gdigicam-manager: the white balance mode was not the \"unset\" "
              "value, it was \"%d\".",
@@ -1331,8 +1334,8 @@ START_TEST (test_set_get_white_balance_mode_limit)
              "gdigicam-manager: the compensation was not the \"unset\" "
              "value, it was \"%d\".",
              gotten_level);
-    fail_if (NULL == error,
-             "gdigicam-manager: error was not set.");
+    fail_if (NULL != error,
+             "gdigicam-manager: error was set.");
 }
 END_TEST
 
@@ -1355,7 +1358,7 @@ START_TEST (test_set_get_white_balance_mode_regular)
                                          NULL);
     fail_if (!g_digicam_manager_set_white_balance_mode (full_featured_manager,
                                                    G_DIGICAM_WHITEBALANCEMODE_MANUAL,
-						   0, /* TODO: In the API this value bit ambigous. */
+						   WHITE_BALANCE_TEST_VALUE,
                                                    &error,
                                                    NULL),
              "gdigicam-manager: an error has happened.");
@@ -1371,7 +1374,7 @@ START_TEST (test_set_get_white_balance_mode_regular)
     fail_if (G_DIGICAM_WHITEBALANCEMODE_MANUAL != gotten_white_balance_mode,
              "gdigicam-manager: the white_balance mode was not "
              "the previously provided.");
-    fail_if (0 != gotten_level,
+    fail_if (WHITE_BALANCE_TEST_VALUE != gotten_level,
              "gdigicam-manager: the level was not the \"unset\" "
              "value, it was \"%d\".",
              gotten_level);
@@ -1383,7 +1386,7 @@ START_TEST (test_set_get_white_balance_mode_regular)
     /* Test 2 */
     fail_if (!g_digicam_manager_set_white_balance_mode (full_featured_manager,
                                                    G_DIGICAM_WHITEBALANCEMODE_AUTO,
-                                                   0, /* TODO: In the API this value is bit ambigious. */
+                                                   WHITE_BALANCE_TEST_VALUE,
                                                    &error,
                                                    NULL),
              "gdigicam-manager: an error has happened.");
@@ -1399,8 +1402,9 @@ START_TEST (test_set_get_white_balance_mode_regular)
     fail_if (G_DIGICAM_WHITEBALANCEMODE_AUTO != gotten_white_balance_mode,
              "gdigicam-manager: the white_balance mode was not "
              "the previously provided.");
-    /* TODO: this test case is failing */
-    fail_if (0 != gotten_level,
+    /* TODO: this test case is failing. Can we actually set a value
+     * when white balance mode is auto ?*/
+    fail_if (WHITE_BALANCE_TEST_VALUE != gotten_level,
              "gdigicam-manager: the level was not "
              "the previously provided.");
     fail_if (NULL != error,
@@ -1915,7 +1919,6 @@ START_TEST (test_set_get_metering_mode_regular)
 {
     GDigicamMeteringmode gotten_metering_mode = 0;
 
-    /* TODO: This test case is failing has to be checked. */
 
     /* Test 1 */
     g_digicam_manager_set_gstreamer_bin (full_featured_manager,
@@ -3907,6 +3910,8 @@ START_TEST (test_set_get_focus_mode_invalid)
                                                TRUE,
                                                &error,
                                                NULL);
+    fail_if (!result, "gdigicam-manager: error has occured");
+
     if (error != NULL) {
         fail_if (!g_error_matches (error,
                                    G_DIGICAM_ERROR,
@@ -3916,12 +3921,7 @@ START_TEST (test_set_get_focus_mode_invalid)
                  G_DIGICAM_ERROR_INVALID_MODE);
         g_error_free (error);
         error = NULL;
-    } else {
-        fail_if (error == NULL,
-                 "gdigicam-manager: there is not error returned.");
     }
-    fail_if (result,
-             "gdigicam-manager: setting focus mode into bin without that capability.");
 
 }
 END_TEST
@@ -4443,12 +4443,12 @@ START_TEST (test_set_aspect_ratio_resolution_limit)
     GDigicamAspectratio gotten_aspect_ratio = 0;
 
     /* Test 1 */
-    fail_if (!g_digicam_manager_set_aspect_ratio_resolution (no_featured_manager,
+    fail_if (g_digicam_manager_set_aspect_ratio_resolution (no_featured_manager,
 							     G_DIGICAM_ASPECTRATIO_4X3,
 							     G_DIGICAM_RESOLUTION_HIGH,
 							     &error,
 							     NULL),
-             "gdigicam-manager: an error has happened.");
+             "gdigicam-manager: an error has not happened.");
     fail_if (NULL == error,
              "gdigicam-manager: error was not set.");
     fail_if (!g_error_matches (error,
@@ -4460,9 +4460,9 @@ START_TEST (test_set_aspect_ratio_resolution_limit)
     g_error_free (error);
     error = NULL;
 
-    fail_if (!g_digicam_manager_get_resolution
+    fail_if (g_digicam_manager_get_resolution
              (no_featured_manager, &gotten_resolution, &error),
-             "gdigicam-manager: an error has happened.");
+             "gdigicam-manager: an error has not happened.");
     fail_if (0 != gotten_resolution,
              "gdigicam-manager: the resolution was not the \"unset\" "
              "value, it was \"%d\".",
@@ -4479,9 +4479,9 @@ START_TEST (test_set_aspect_ratio_resolution_limit)
     error = NULL;
     gotten_resolution = 0;
 
-    fail_if (!g_digicam_manager_get_aspect_ratio
+    fail_if (g_digicam_manager_get_aspect_ratio
              (no_featured_manager, &gotten_aspect_ratio, &error),
-             "gdigicam-manager: an error has happened.");
+             "gdigicam-manager: an error has not happened.");
     fail_if (0 != gotten_aspect_ratio,
              "gdigicam-manager: the aspect ratio was not the \"unset\" "
              "value, it was \"%d\".",
@@ -4504,12 +4504,12 @@ START_TEST (test_set_aspect_ratio_resolution_limit)
                                          no_featured_camera_bin,
                                          no_featured_descriptor,
                                          NULL);
-    fail_if (!g_digicam_manager_set_aspect_ratio_resolution (no_featured_manager,
+    fail_if (g_digicam_manager_set_aspect_ratio_resolution (no_featured_manager,
 							     G_DIGICAM_ASPECTRATIO_4X3,
 							     G_DIGICAM_RESOLUTION_HIGH,
 							     &error,
                                                 NULL),
-             "gdigicam-manager: an error has happened.");
+             "gdigicam-manager: an error has not happened.");
     fail_if (NULL == error,
              "gdigicam-manager: error was not set.");
     fail_if (!g_error_matches (error,
@@ -4521,9 +4521,9 @@ START_TEST (test_set_aspect_ratio_resolution_limit)
     g_error_free (error);
     error = NULL;
 
-    fail_if (!g_digicam_manager_get_resolution
+    fail_if (g_digicam_manager_get_resolution
              (no_featured_manager, &gotten_resolution, &error),
-             "gdigicam-manager: an error has happened.");
+             "gdigicam-manager: an error has not happened.");
     fail_if (0 != gotten_resolution,
              "gdigicam-manager: the resolution was not the \"unset\" "
              "value, it was \"%d\".",
@@ -4539,9 +4539,9 @@ START_TEST (test_set_aspect_ratio_resolution_limit)
     g_error_free (error);
     error = NULL;
 
-    fail_if (!g_digicam_manager_get_aspect_ratio
+    fail_if (g_digicam_manager_get_aspect_ratio
              (no_featured_manager, &gotten_aspect_ratio, &error),
-             "gdigicam-manager: an error has happened.");
+             "gdigicam-manager: an error has not happened.");
     fail_if (0 != gotten_aspect_ratio,
              "gdigicam-manager: the aspect ratio was not the \"unset\" "
              "value, it was \"%d\".",
@@ -4562,12 +4562,12 @@ START_TEST (test_set_aspect_ratio_resolution_limit)
                                          minimum_featured_camera_bin,
                                          minimum_featured_descriptor,
                                          NULL);
-    fail_if (!g_digicam_manager_set_aspect_ratio_resolution (minimum_featured_manager,
+    fail_if (g_digicam_manager_set_aspect_ratio_resolution (minimum_featured_manager,
 							     G_DIGICAM_ASPECTRATIO_4X3,
 							     G_DIGICAM_RESOLUTION_HIGH,
 							     &error,
 							     NULL),
-             "gdigicam-manager: an error has happened.");
+             "gdigicam-manager: an error has not happened.");
     fail_if (NULL == error,
              "gdigicam-manager: error was not set.");
     fail_if (!g_error_matches (error,
@@ -4579,9 +4579,9 @@ START_TEST (test_set_aspect_ratio_resolution_limit)
     g_error_free (error);
     error = NULL;
 
-    fail_if (!g_digicam_manager_get_resolution
+    fail_if (g_digicam_manager_get_resolution
              (minimum_featured_manager, &gotten_resolution, &error),
-             "gdigicam-manager: an error has happened.");
+             "gdigicam-manager: an error has not happened.");
     fail_if (0 != gotten_resolution,
              "gdigicam-manager: the resolution was not the \"unset\" "
              "value, it was \"%d\".",
@@ -4597,9 +4597,9 @@ START_TEST (test_set_aspect_ratio_resolution_limit)
     g_error_free (error);
     error = NULL;
 
-    fail_if (!g_digicam_manager_get_aspect_ratio
+    fail_if (g_digicam_manager_get_aspect_ratio
              (minimum_featured_manager, &gotten_aspect_ratio, &error),
-             "gdigicam-manager: an error has happened.");
+             "gdigicam-manager: an error has not happened.");
     fail_if (0 != gotten_aspect_ratio,
              "gdigicam-manager: the aspect ratio was not the \"unset\" "
              "value, it was \"%d\".",
@@ -4681,7 +4681,7 @@ START_TEST (test_set_aspect_ratio_resolution_regular)
     fail_if (!g_digicam_manager_get_aspect_ratio
              (full_featured_manager, &gotten_aspect_ratio, &error),
              "gdigicam-manager: an error has happened.");
-    fail_if (G_DIGICAM_ASPECTRATIO_16X9 != gotten_aspect_ratio,
+    fail_if (G_DIGICAM_ASPECTRATIO_4X3 != gotten_aspect_ratio,
              "gdigicam-manager: the aspect ratio was not "
              "the previously provided.");
     fail_if (NULL != error,
@@ -4710,7 +4710,7 @@ START_TEST (test_set_aspect_ratio_resolution_regular)
     fail_if (!g_digicam_manager_get_aspect_ratio
              (full_featured_manager, &gotten_aspect_ratio, &error),
              "gdigicam-manager: an error has happened.");
-    fail_if (G_DIGICAM_ASPECTRATIO_4X3 != gotten_aspect_ratio,
+    fail_if (G_DIGICAM_ASPECTRATIO_16X9 != gotten_aspect_ratio,
              "gdigicam-manager: the aspect ratio was not "
              "the previously provided.");
     fail_if (NULL != error,

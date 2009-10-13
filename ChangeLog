@@ -1,5 +1,9 @@
 2009-10-13  Andrés Gómez  <agomez@igalia.com>
 
+	* ext/gst-camerabin/data/gdigicam-camerabin.conf: Modified default
+	JPEG encoder from jpegenc to dspjpegenc.
+	Fixes: NB#118043.
+
 	* configure.ac: Removed warnings when not compiling for debugging.
 
 2009-10-09  Andrés Gómez  <agomez@igalia.com>

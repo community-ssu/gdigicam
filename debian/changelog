@@ -1,3 +1,9 @@
+gdigicam (0.2.42.1) unstable; urgency=low
+
+  * Fixes: NB#118043 - DSP Jpeg encoder is not used.
+
+ -- Andrés Gómez <agomez@igalia.com>  Wed, 14 Oct 2009 00:18:15 +0200
+
 gdigicam (0.2.40.1) unstable; urgency=low
 
   * Fixed memory leak in the GDigicamManager picture-done signal

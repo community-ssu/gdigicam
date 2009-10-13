@@ -1,3 +1,7 @@
+2009-10-13  Andrés Gómez  <agomez@igalia.com>
+
+	* configure.ac: Removed warnings when not compiling for debugging.
+
 2009-10-09  Andrés Gómez  <agomez@igalia.com>
 
 	* tests/check-gdigicam-manager.c:

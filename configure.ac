@@ -202,7 +202,7 @@ else
 
     with_opt=no
   else
-    DEBUG_CFLAGS="$WARN_CFLAGS -Wall -Wunreachable-code"
+    DEBUG_CFLAGS=""
   fi
 fi
 AC_SUBST(DEBUG_CFLAGS)

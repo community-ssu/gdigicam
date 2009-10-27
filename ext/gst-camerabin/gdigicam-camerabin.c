@@ -619,7 +619,16 @@ g_digicam_camerabin_element_new (const gchar *videosrc,
 
     if (NULL != ienc) {
         if (0 != quality) {
-            g_object_set (G_OBJECT (ienc), "quality", quality, NULL);
+            if (NULL != g_object_class_find_property (G_OBJECT_GET_CLASS (ienc),
+                                                      "quality")) {
+                g_object_set (G_OBJECT (ienc), "quality", quality, NULL);
+            } else {
+                G_DIGICAM_DEBUG ("GDigicamCamerabin::g_digicam_camerabin_element_new: "
+                                 "image encoder has not quality capabilities.");
+            }
+        } else {
+            G_DIGICAM_DEBUG ("GDigicamCamerabin::g_digicam_camerabin_element_new: "
+                             "quality not specified for image encoder.");
         }
 
 	g_object_set (G_OBJECT (gst_camera_bin), "imageenc", ienc, NULL);

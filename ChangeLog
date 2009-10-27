@@ -1,3 +1,10 @@
+2009-10-27  Andrés Gómez  <agomez@igalia.com>
+
+	* ext/gst-camerabin/gdigicam-camerabin.c
+	(g_digicam_camerabin_element_new): Checked for quality property on
+	the image encoder element to avoid warnings and added new
+	debugging messages.
+
 2009-10-27  Javier Fernández  <jfernandez@igalia.com>
 
 	reviewed by: Andrés Gómez <agomez@igalia.com>

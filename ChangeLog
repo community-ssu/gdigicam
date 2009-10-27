@@ -1,3 +1,14 @@
+2009-10-27  Javier Fernández  <jfernandez@igalia.com>
+
+	reviewed by: Andrés Gómez <agomez@igalia.com>
+
+	* ext/gst-camerabin/gdigicam-camerabin.c
+	(_g_digicam_camerabin_set_video_metadata): The video geotagging
+	metadata should be inserted using an unique tag, called
+	GST_TAG_GEO_LOCATION_NAME, instead of using three different tags
+	for country, city and suburb.
+	Fixes: NB#140871.
+
 2009-10-13  Andrés Gómez  <agomez@igalia.com>
 
 	* ext/gst-camerabin/data/gdigicam-camerabin.conf: Modified default

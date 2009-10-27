@@ -2135,6 +2135,8 @@ _g_digicam_camerabin_set_video_metadata (GstElement *gst_camera_bin,
 
     GstTagSetter *setter = NULL;
     GstTagList *list = NULL;
+    gchar *geo_name = NULL;
+    gchar *tmp = NULL;
     /*we should not set Date if hantro is used as its automatically set by it.
     If we set date and time, hantro extract only year from it and erase the automatic date */
     /*TODO: Verfiy aumatice date set. */
@@ -2195,19 +2197,29 @@ _g_digicam_camerabin_set_video_metadata (GstElement *gst_camera_bin,
 
     /* We should have all the geotags. */
     if (NULL != metadata->country_name) {
-        gst_tag_list_add (list, GST_TAG_MERGE_APPEND,
-                          GST_TAG_GEO_LOCATION_COUNTRY, metadata->country_name,
-                          NULL);
+        geo_name = g_strdup (metadata->country_name);
         if (NULL != metadata->city_name) {
-                gst_tag_list_add (list, GST_TAG_MERGE_APPEND,
-                                  GST_TAG_GEO_LOCATION_CITY, metadata->city_name,
-                                  NULL);
-            }
-        if (NULL != metadata->suburb_name) {
-            gst_tag_list_add (list, GST_TAG_MERGE_APPEND,
-                              GST_TAG_GEO_LOCATION_SUBLOCATION, metadata->suburb_name,
-                              NULL);
+            tmp = g_strconcat (geo_name,
+                               ",",
+                               metadata->city_name,
+                               NULL);
+            g_free (geo_name);
+            geo_name = tmp;
+            tmp = NULL;
         }
+        if (NULL != metadata->suburb_name) {
+            tmp = g_strconcat (geo_name,
+                               ",",
+                               metadata->suburb_name,
+                               NULL);
+            g_free (geo_name);
+            geo_name = tmp;
+            tmp = NULL;
+        }
+
+        gst_tag_list_add (list, GST_TAG_MERGE_APPEND,
+                          GST_TAG_GEO_LOCATION_NAME, geo_name,
+                          NULL);
     }
 
     /* Set metadata tags. */
@@ -2216,6 +2228,8 @@ _g_digicam_camerabin_set_video_metadata (GstElement *gst_camera_bin,
 
     /* Free. */
     gst_tag_list_free (list);
+    g_free (geo_name);
+    g_free (tmp);
 }
 
 

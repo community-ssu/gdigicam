@@ -1,3 +1,13 @@
+gdigicam (0.2.44.1) unstable; urgency=low
+
+  * Fixes: NB#140871 - Video's geotags are not saved.
+  * The video geotagging metadata is now to be inserted using an unique
+    tag in the GStreamer CameraBin external library plugin.
+  * Checked for quality property on the image encoder element of the
+    GStreamer CameraBin external library plugin.
+
+ -- Andrés Gómez <agomez@igalia.com>  Thu, 29 Oct 2009 03:00:48 +0100
+
 gdigicam (0.2.42.1) unstable; urgency=low
 
   * Fixes: NB#118043 - DSP Jpeg encoder is not used.

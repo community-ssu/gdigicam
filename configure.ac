@@ -3,7 +3,7 @@
 # An even micro number indicates a released version.
 m4_define(gdigicam_major_version, 0)
 m4_define(gdigicam_minor_version, 2)
-m4_define(gdigicam_micro_version, 42)
+m4_define(gdigicam_micro_version, 44)
 
 m4_define([gdigicam_version],
           [gdigicam_major_version.gdigicam_minor_version.gdigicam_micro_version])

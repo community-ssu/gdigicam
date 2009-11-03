@@ -1322,7 +1322,7 @@ g_digicam_manager_set_exposure_mode (GDigicamManager            *manager,
         priv->iso_level = conf->iso_level;
         priv->white_balance_mode = conf->white_balance_mode;
         priv->white_balance_level = conf->white_balance_level;
-        priv->exposure_compensation = conf->white_balance_level;
+        priv->exposure_compensation = conf->exposure_compensation;
         priv->flash_mode = conf->flash_mode;
     }
 

@@ -1,3 +1,9 @@
+2009-12-03  Andrés Gómez  <agomez@igalia.com>
+
+	* src/gdigicam-manager.c:
+	(g_digicam_manager_set_exposure_mode): Fixed wrong assignation on
+	exposure related values.
+
 2009-10-27  Andrés Gómez  <agomez@igalia.com>
 
 	* ext/gst-camerabin/gdigicam-camerabin.c

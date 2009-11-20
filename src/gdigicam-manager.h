@@ -1275,6 +1275,9 @@ extern "C" {
 					 GError **error);
     gboolean g_digicam_manager_stop_bin (GDigicamManager *manager,
 					 GError **error);
+    gboolean g_digicam_manager_get_xwindow_id (GDigicamManager *manager,
+                                               gulong          *xwindow_id,
+                                               GError         **error);
     gboolean g_digicam_manager_capture_still_picture (GDigicamManager *manager,
                                                       const gchar     *filename,
                                                       GError          **error,

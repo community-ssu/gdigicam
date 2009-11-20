@@ -99,8 +99,6 @@ static guint manager_signals [LAST_SIGNAL] = { 0 };
 
 #define MIN_ZOOM 1
 
-static guint bus_callback_source_id = 0;
-
 /***************************************/
 /* Gobject support function prototypes */
 /***************************************/
@@ -189,6 +187,7 @@ g_digicam_manager_set_gstreamer_bin (GDigicamManager    *manager,
                                      GError            **error)
 {
     GDigicamManagerPrivate *priv = NULL;
+    GstBus *gst_bus = NULL;
     gboolean result = FALSE;
     gchar *error_msg = NULL;
     GDigicamError error_code = G_DIGICAM_ERROR_FAILED;
@@ -199,21 +198,20 @@ g_digicam_manager_set_gstreamer_bin (GDigicamManager    *manager,
 
     priv = G_DIGICAM_MANAGER_GET_PRIVATE (manager);
 
-    /* Cleaning up previous sink and bin */
-    _g_digicam_manager_cleanup_sink (priv, NULL);
-    _g_digicam_manager_cleanup_bin (priv);
+    _g_digicam_manager_free_private (priv);
 
     priv->gst_bin = gst_bin;
     gst_object_ref (GST_OBJECT (priv->gst_bin));
 
     if (NULL != descriptor) {
-        /* FIXME: We have to copy the descriptor */
+        /* FIXME: We have to copy the descriptor. */
         priv->descriptor = g_digicam_manager_descriptor_copy (descriptor);
     } else {
         priv->descriptor = _g_digicam_manager_descriptor_builder (priv->gst_bin);
         if (NULL == priv->descriptor) {
             error_code = G_DIGICAM_ERROR_FAILED;
-            error_msg = g_strdup ("there was an error getting "
+            error_msg = g_strdup ("GDigicamManager::g_digicam_manager_set_gstreamer_bin: "
+                                  "there was an error getting "
                                   "the gst_bin capabilities");
             goto cleanup;
         }
@@ -224,7 +222,8 @@ g_digicam_manager_set_gstreamer_bin (GDigicamManager    *manager,
     priv->gst_pipeline = gst_pipeline_new (NULL);
     if (NULL == priv->gst_pipeline) {
         error_code = G_DIGICAM_ERROR_FAILED;
-        error_msg = g_strdup ("impossible to create the pipeline "
+        error_msg = g_strdup ("GDigicamManager::g_digicam_manager_set_gstreamer_bin: "
+                              "impossible to create the pipeline "
                               "for the gstreamer bin");
         goto cleanup;
     }
@@ -232,52 +231,49 @@ g_digicam_manager_set_gstreamer_bin (GDigicamManager    *manager,
     if (!(gst_bin_add (GST_BIN (priv->gst_pipeline),
                        GST_ELEMENT (priv->gst_bin)))) {
         error_code = G_DIGICAM_ERROR_FAILED;
-        error_msg = g_strdup ("there was an error adding the bin "
+        error_msg = g_strdup ("GDigicamManager::g_digicam_manager_set_gstreamer_bin: "
+                              "there was an error adding the bin "
                               "to the pipeline");
         goto cleanup;
     }
 
+    /* FIXME: REALLY?!!!!!. It is, by now, but it is really
+     * strange. The "_g_digicam_manager_cleanup_bin" method is urefing
+     * from 2 to 0 the gst_bin when unrefing the gst_pipeline. */
     gst_object_ref (GST_OBJECT (priv->gst_bin));
 
-    priv->gst_bus = gst_pipeline_get_bus (GST_PIPELINE (priv->gst_pipeline));
-    bus_callback_source_id = gst_bus_add_watch (priv->gst_bus,
-                                                _g_digicam_manager_bus_callback,
-                                                manager);
+    gst_bus = gst_pipeline_get_bus (GST_PIPELINE (priv->gst_pipeline));
+    gst_bus_add_watch (gst_bus, _g_digicam_manager_bus_callback, manager);
 
-    /* set the handler for the messages of the sink */
-    gst_bus_set_sync_handler (priv->gst_bus,
+    /* Set the handler for the messages of the sink. */
+    gst_bus_set_sync_handler (gst_bus,
 			      _g_digicam_manager_sync_bus_callback,
 			      manager);
     /* FIXME: This is a mess. We have to clean it up */
 
-    /* if the descriptor has viewfinder capabilities
-       and the bin has a sink, we store it */
+    /* If the descriptor has viewfinder capabilities and the bin has a
+     * sink, we store it. */
     if ((priv->descriptor != NULL) &&
         (priv->descriptor->supported_features &
          G_DIGICAM_CAPABILITIES_VIEWFINDER)) {
 	if (NULL == priv->descriptor->viewfinder_sink) {
-            GstElement *gst_element = NULL;
-
-            gst_element = gst_bin_get_by_interface (GST_BIN (gst_bin),
-                                                    GST_TYPE_X_OVERLAY);
-            if (NULL == gst_element) {
+            priv->descriptor->viewfinder_sink = gst_bin_get_by_interface (GST_BIN (gst_bin),
+                                                                          GST_TYPE_X_OVERLAY);
+            if (NULL == priv->descriptor->viewfinder_sink) {
                 error_code = G_DIGICAM_ERROR_FAILED;
                 error_msg = g_strdup ("the gst_element has not viewfinder "
                                       "capabilities but the descriptor needs them");
                 goto cleanup;
             }
-
-            descriptor->viewfinder_sink = gst_element;
-            /* FIXME: Is this not really needed? */
-/*             gst_object_ref (GST_OBJECT (descriptor->viewfinder_sink)); */
         }
     }
 
     if (0 == g_signal_lookup ("img-done", G_OBJECT_TYPE (priv->gst_bin))) {
-        G_DIGICAM_DEBUG ("GDigicam: The Gst-Element has not "
-                         "\"img-done\" signal\n");
+        G_DIGICAM_DEBUG ("GDigicamManager::g_digicam_manager_set_gstreamer_bin: "
+                         "The Gst-Element has not "
+                         "\"img-done\" signal.");
     } else {
-        /* Connect the picture done callback */
+        /* Connect the picture done callback. */
         g_signal_connect (G_OBJECT (priv->gst_bin),
                           "img-done",
                           (GCallback) _picture_done,
@@ -297,6 +293,9 @@ cleanup:
     if (NULL != error_msg) {
         g_free (error_msg);
     }
+
+    gst_object_unref (GST_OBJECT (gst_bus));
+
     if (!result) {
         _g_digicam_manager_cleanup_bin (priv);
     }
@@ -3767,12 +3766,13 @@ g_digicam_manager_play_bin (GDigicamManager *manager,
         goto error;
     }
 
-    /* store the xwindow_id in the priv */
-    priv->xwindow_id = xwindow_id;
-
     if ((priv->descriptor->supported_features &
          G_DIGICAM_CAPABILITIES_VIEWFINDER) &&
 	(NULL != priv->descriptor->viewfinder_sink)) {
+
+        /* Store the xwindow_id in the priv. */
+        priv->xwindow_id = xwindow_id;
+
 	gst_x_overlay_set_xwindow_id (GST_X_OVERLAY (priv->descriptor->viewfinder_sink),
 				      priv->xwindow_id);
     }
@@ -3857,6 +3857,72 @@ error:
     /* Free */
     if (NULL != error_msg) {
         g_free(error_msg);
+    }
+
+    return result;
+}
+
+
+/**
+ * g_digicam_manager_get_xwindow_id:
+ * @manager: A #GDigicamManager
+ * @xwindow_id: Identifier of the X window to play in.
+ * @error: A #GError to store the result of the operation.
+ *
+ * Gets the XWindow ID in which the bin will show its output.
+ *
+ * Returns: %True if success, %FALSE otherwise.
+ **/
+gboolean
+g_digicam_manager_get_xwindow_id (GDigicamManager *manager,
+                                  gulong          *xwindow_id,
+                                  GError         **error)
+{
+    GDigicamManagerPrivate *priv = NULL;
+    gboolean result = FALSE;
+    gchar *error_msg = NULL;
+    GDigicamError error_code = G_DIGICAM_ERROR_FAILED;
+
+    g_return_val_if_fail (G_DIGICAM_IS_MANAGER (manager), FALSE);
+    g_return_val_if_fail (NULL != xwindow_id, FALSE);
+
+
+    priv = G_DIGICAM_MANAGER_GET_PRIVATE (manager);
+
+    /* Check GStreamer bin. */
+    if (NULL == priv->gst_bin) {
+        error_code = G_DIGICAM_ERROR_GSTREAMER_BIN_NOT_SET;
+        error_msg = g_strdup ("imposible to get the xwindow id "
+                              "since there is no GStreamer bin "
+                              "from which to get it");
+        goto error;
+    }
+
+    /* Check viewfinder capability. */
+    if (!(priv->descriptor->supported_features &
+          G_DIGICAM_CAPABILITIES_VIEWFINDER) ||
+	(NULL == priv->descriptor->viewfinder_sink)) {
+        error_code = G_DIGICAM_ERROR_VIEWFINDER_NOT_SUPPORTED;
+        error_msg = g_strdup ("imposible to get the xwindow id "
+                              "since the GStreamer bin "
+                              "has not this capability");
+    }
+
+    /* Performs operation. */
+    *xwindow_id = priv->xwindow_id;
+
+    result = TRUE;
+
+error:
+    if ((NULL != error) && (NULL == *error)) {
+        if ((!result) && (NULL != error_msg)) {
+            g_digicam_set_error (error, error_code, error_msg);
+	}
+    }
+
+    /* Free */
+    if (NULL != error_msg) {
+        g_free (error_msg);
     }
 
     return result;
@@ -4251,7 +4317,6 @@ g_digicam_manager_descriptor_copy (const GDigicamDescriptor *orig_descriptor)
     }
     if (NULL != orig_descriptor->viewfinder_sink) {
         descriptor->viewfinder_sink = orig_descriptor->viewfinder_sink;
-        /* FIXME: Is this really needed? */
         gst_object_ref (GST_OBJECT (descriptor->viewfinder_sink));
     }
     descriptor->supported_features = orig_descriptor->supported_features;
@@ -4511,7 +4576,6 @@ _g_digicam_manager_init (GDigicamManager *manager)
 
     priv->gst_bin = NULL;
     priv->gst_pipeline = NULL;
-    priv->gst_bus = NULL;
     priv->xwindow_id = 0;
     priv->descriptor = NULL;
     priv->mode = G_DIGICAM_MODE_NONE;
@@ -4749,25 +4813,9 @@ _g_digicam_manager_sync_bus_callback (GstBus     *bus,
 static void
 _g_digicam_manager_cleanup_bin (GDigicamManagerPrivate *priv)
 {
-    if (0 != bus_callback_source_id) {
-        g_source_remove (bus_callback_source_id);
-        bus_callback_source_id = 0;
-    }
-
-    if (GST_IS_BUS (priv->gst_bus)) {
-        gst_bus_set_sync_handler (priv->gst_bus,
-                                  NULL,
-                                  NULL);
-    }
-
     if (NULL != priv->descriptor) {
         g_digicam_manager_descriptor_free (priv->descriptor);
         priv->descriptor = NULL;
-    }
-
-    if (NULL != priv->gst_bus) {
-        gst_object_unref (GST_OBJECT (priv->gst_bus));
-        priv->gst_bus = NULL;
     }
 
     if (NULL != priv->gst_pipeline) {
@@ -4775,7 +4823,10 @@ _g_digicam_manager_cleanup_bin (GDigicamManagerPrivate *priv)
         /* FIXME: This blocks until the previous call has finished because
            it is async. We could remove this and wait for its completion
            notified by a message in the bus */
-        gst_element_get_state (priv->gst_pipeline, NULL, NULL, GST_CLOCK_TIME_NONE);
+        gst_element_get_state (priv->gst_pipeline,
+                               NULL,
+                               NULL,
+                               GST_CLOCK_TIME_NONE);
         if (NULL != priv->gst_bin) {
             gst_bin_remove (GST_BIN (priv->gst_pipeline),
                             GST_ELEMENT (priv->gst_bin));
@@ -4807,9 +4858,12 @@ _g_digicam_manager_cleanup_sink (GDigicamManagerPrivate *priv,
     if ((NULL != priv->descriptor) &&
         (priv->descriptor->supported_features &
          G_DIGICAM_CAPABILITIES_VIEWFINDER)) {
+
+        priv->xwindow_id = 0;
+
         gst_x_overlay_set_xwindow_id
             (GST_X_OVERLAY (priv->descriptor->viewfinder_sink),
-             0);
+             priv->xwindow_id);
     } else {
         if ((NULL != error) && (NULL == *error)) {
             g_digicam_set_error (error, G_DIGICAM_ERROR_VIEWFINDER_NOT_SUPPORTED,
@@ -4825,6 +4879,30 @@ _g_digicam_manager_free_private (GDigicamManagerPrivate *priv)
 {
     _g_digicam_manager_cleanup_sink (priv, NULL);
     _g_digicam_manager_cleanup_bin (priv);
+
+    priv->mode = G_DIGICAM_MODE_NONE;
+    priv->flash_mode = G_DIGICAM_FLASHMODE_NONE;
+    priv->is_flash_ready = FALSE;
+    priv->focus_mode = G_DIGICAM_FOCUSMODE_NONE;
+    priv->is_macro_enabled = FALSE;
+    priv->focus_points = G_DIGICAM_FOCUSPOINTS_NONE;
+    priv->active_points = G_DIGICAM_FOCUSPOINTS_NONE;
+    priv->focus_region_positions = NULL;
+    priv->exposure_mode = G_DIGICAM_EXPOSUREMODE_NONE;
+    priv->exposure_compensation = 0;
+    priv->iso_sensitivity_mode = G_DIGICAM_ISOSENSITIVITYMODE_NONE;
+    priv->iso_level = 0;
+    priv->white_balance_mode = G_DIGICAM_WHITEBALANCEMODE_NONE;
+    priv->white_balance_level = 0;
+    priv->metering_mode = G_DIGICAM_METERINGMODE_NONE;
+    priv->aspect_ratio = G_DIGICAM_ASPECTRATIO_NONE;
+    priv->quality = G_DIGICAM_QUALITY_NONE;
+    priv->resolution = G_DIGICAM_RESOLUTION_NONE;
+    priv->locks = G_DIGICAM_LOCK_AUTOFOCUS_NONE;
+    priv->zoom = MIN_ZOOM;
+    priv->digital_zoom = FALSE;
+    priv->audio = G_DIGICAM_AUDIO_NONE;
+    priv->preview_mode = G_DIGICAM_PREVIEW_NONE;
 }
 
 

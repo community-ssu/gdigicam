@@ -1,5 +1,39 @@
 2009-12-03  Andrés Gómez  <agomez@igalia.com>
 
+	* doc/reference/gdigicam-sections.txt: Added new gtk-doc.
+	* src/gdigicam-manager-private.h: Removed "gst_bus" private
+	member.
+	* src/gdigicam-manager.h:
+	* src/gdigicam-manager.c:
+	(g_digicam_manager_set_gstreamer_bin): Removed management of the
+	old "gst_bus" private member. Viewfinder sink stored in the proper
+	descriptor, now.
+	(g_digicam_manager_play_bin): We store the xwindow id just if the
+	descriptor has viewfinder capabilities, now.
+	(g_digicam_manager_get_xwindow_id): Added. Retrieves the xwindow
+	id to be used as output by the gstreamer bin.
+	(_g_digicam_manager_init): Removed "gst_bus" private
+	member.
+	(_g_digicam_manager_cleanup_bin): Removed "gst_bus" private
+	member and handler.
+	(_g_digicam_manager_cleanup_sink): Resetting "xwindow_id" private
+	member.
+	(_g_digicam_manager_free_private): Resets the bin related private
+	members.
+	* tests/check-gdigicam-manager.c:
+	(test_start_stop_viewfinder_regular): Removed. Refactored into
+	test_start_stop_get_viewfinder_regular.
+	(test_start_stop_get_viewfinder_regular): Added. Refactored from
+	test_start_stop_viewfinder_regular. It tests the new
+	g_digicam_manager_get_xwindow_id API too, now.
+	(test_start_stop_viewfinder_invalid): Removed. Refactored into
+	test_start_stop_get_viewfinder_invalid.
+	(test_start_stop_get_viewfinder_invalid): Added. Refactored from
+	test_start_stop_viewfinder_invalid. It tests the new
+	g_digicam_manager_get_xwindow_id API too, now.
+	(create_g_digicam_manager_suite): test_start_stop_viewfinder
+	refactored into test_start_stop_get_viewfinder.
+
 	* src/gdigicam-manager.c:
 	(g_digicam_manager_set_exposure_mode): Fixed wrong assignation on
 	exposure related values.

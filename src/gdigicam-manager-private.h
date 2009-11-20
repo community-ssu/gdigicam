@@ -52,7 +52,6 @@ extern "C" {
 
         GstElement *gst_bin;
         GstElement *gst_pipeline;
-        GstBus     *gst_bus;
 	gulong xwindow_id;
 
 /*         gchar *saving_location; */

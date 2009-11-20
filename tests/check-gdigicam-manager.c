@@ -3170,26 +3170,26 @@ END_TEST
 
 
 
-/* ----- Test case for start/stop the viewfinder -----*/
+/* ----- Test case for start/stop/get the viewfinder ----- */
 
 
 /**
- * Purpose: test starting/stopping viewfinder in a #GDigicamManager
+ * Purpose: test starting/stopping/get viewfinder in a #GDigicamManager
  *
  * Cases considered:
  *    - start video streaming in viewfinder.
  *    - stop video streaming in viewfinder.
  **/
-START_TEST (test_start_stop_viewfinder_regular)
+START_TEST (test_start_stop_get_viewfinder_regular)
 {
     gulong xwindow_id = 0;
+    gulong xwindow_id_tmp = 0;
 
     window = create_test_window ();
     show_test_window (window);
     xwindow_id = get_test_window_id (window);
 
     /* Test 1 */
-
     g_digicam_manager_set_gstreamer_bin (full_featured_manager,
                                          full_featured_camera_bin,
                                          full_featured_descriptor,
@@ -3207,6 +3207,23 @@ START_TEST (test_start_stop_viewfinder_regular)
         error = NULL;
     }
 
+    fail_if (!g_digicam_manager_get_xwindow_id (full_featured_manager,
+                                                &xwindow_id_tmp,
+                                                &error),
+             "gdigicam-manager: error has happened. "
+	     "Unable to get the xwindow id");
+    if (error != NULL) {
+        fail_if (error != NULL,
+                 "gdigicam-manager: error is \n\"%s\"\n instead of succes.",
+                 error->message);
+        g_error_free (error);
+        error = NULL;
+    }
+
+    fail_if (xwindow_id != xwindow_id_tmp,
+             "gdigicam-manager: the xwindow id set and the gotten "
+             "are not the same");
+
     /* Test 2 */
     fail_if (!g_digicam_manager_stop_bin (full_featured_manager,
                                           &error),
@@ -3220,19 +3237,37 @@ START_TEST (test_start_stop_viewfinder_regular)
         g_error_free (error);
         error = NULL;
     }
+
+    fail_if (!g_digicam_manager_get_xwindow_id (full_featured_manager,
+                                                &xwindow_id_tmp,
+                                                &error),
+             "gdigicam-manager: error has happened. "
+	     "Unable to get the xwindow id");
+    if (error != NULL) {
+        fail_if (error != NULL,
+                 "gdigicam-manager: error is \n\"%s\"\n instead of succes.",
+                 error->message);
+        g_error_free (error);
+        error = NULL;
+    }
+
+    fail_if (0 != xwindow_id_tmp,
+             "gdigicam-manager: the xwindow id gotten is not 0");
 }
 END_TEST
 
 
 /**
- * Purpose: test starting/stopping viewfinder with invalid values in
+ * Purpose: test starting/stopping/get viewfinder with invalid values in
  * a #GDigicamManager
  *
  * Cases considered:
  *    - start video streaming in viewfinder.
  *    - stop video streaming in viewfinder.
+ *    - get xwindow id with invalid manager.
+ *    - get xwindow id with invalid pointer in which to store.
  **/
-START_TEST (test_start_stop_viewfinder_invalid)
+START_TEST (test_start_stop_get_viewfinder_invalid)
 {
     gulong xwindow_id = 0;
 
@@ -3252,6 +3287,20 @@ START_TEST (test_start_stop_viewfinder_invalid)
                                          &error),
             "gdigicam-manager: video streaming stopped "
             "with invalid digicam");
+
+    /* Test 3 */
+    fail_if (g_digicam_manager_get_xwindow_id (NULL,
+                                               &xwindow_id,
+                                               &error),
+            "gdigicam-manager: xwindow id got "
+            "with invalid digicam");
+
+    /* Test 4 */
+    fail_if (g_digicam_manager_get_xwindow_id (full_featured_manager,
+                                               NULL,
+                                               &error),
+            "gdigicam-manager: xwindow id got "
+            "with invalid pointer in which to set");
 }
 END_TEST
 
@@ -6200,7 +6249,7 @@ Suite *create_g_digicam_manager_suite (void)
     TCase *tc16 = tcase_create ("test_capture_still_picture");
     TCase *tc17 = tcase_create ("test_set_get_white_balance_mode");
     TCase *tc18 = tcase_create ("test_set_get_iso_sensitivity_mode");
-    TCase *tc19 = tcase_create ("test_start_stop_viewfinder");
+    TCase *tc19 = tcase_create ("test_start_stop_get_viewfinder");
     TCase *tc20 = tcase_create ("test_set_get_exposure_comp_mode");
     TCase *tc21 = tcase_create ("test_set_get_quality");
     TCase *tc22 = tcase_create ("test_set_get_locks");
@@ -6328,12 +6377,12 @@ Suite *create_g_digicam_manager_suite (void)
     tcase_add_test (tc18, test_set_get_iso_sensitivity_mode_invalid);
     suite_add_tcase (s, tc18);
 
-    /* Create test case for test_start_stop_viewfinder and add it to the suite */
+    /* Create test case for test_start_stop_get_viewfinder and add it to the suite */
     tcase_add_checked_fixture (tc19,
                                fx_setup_default_managers,
                                fx_teardown_default_managers);
-    tcase_add_test (tc19, test_start_stop_viewfinder_regular);
-    tcase_add_test (tc19, test_start_stop_viewfinder_invalid);
+    tcase_add_test (tc19, test_start_stop_get_viewfinder_regular);
+    tcase_add_test (tc19, test_start_stop_get_viewfinder_invalid);
     suite_add_tcase (s, tc19);
 
 

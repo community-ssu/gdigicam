@@ -1,3 +1,14 @@
+gdigicam (0.2.49.1) unstable; urgency=low
+
+  * Fixed wrong assignation on exposure related values in the manager..
+  * Removed the useles gst_bus manager private member.
+  * Added a new API to the manager in order to get the xwindow id used
+    by the bin.
+  * Manager reviewed so we can safely replace a working bin with
+    another.
+
+ -- Andrés Gómez <agomez@igalia.com>  Thu, 03 Dec 2009 00:55:59 +0100
+
 gdigicam (0.2.44.1) unstable; urgency=low
 
   * Fixes: NB#140871 - Video's geotags are not saved.

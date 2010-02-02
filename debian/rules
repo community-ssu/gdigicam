@@ -137,7 +137,7 @@ install: build
 
 # 	Add here commands to install the package into debian/build.
 	$(MAKE) install DESTDIR=$(CURDIR)/debian/build
-	sed -i 's_"gdigicam-manager.h"_<gdigicam/gdigicam-manager.h>_' $(CURDIR)/debian/build/usr/include/gdigicam-0.2/gdigicam/gst-camerabin/*.h
+	sed -i 's_"gdigicam-manager.h"_<gdigicam/gdigicam-manager.h>_' $(CURDIR)/debian/build/usr/include/gdigicam-0.3/gdigicam/gst-camerabin/*.h
 
 #	for the -dbg package
 # 	rm -rf $(CURDIR)/debian/build/usr/lib/debug

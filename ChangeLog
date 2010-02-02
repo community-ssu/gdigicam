@@ -1,4 +1,12 @@
+2010-02-02  Andrés Gómez  <agomez@igalia.com>
+
+	* ext/gst-camerabin/gdigicam-camerabin.c: The 16x9 still picture
+	resolutions are now 2560x1440.
+	Fixes: NB#150488.
+
 2009-12-03  Andrés Gómez  <agomez@igalia.com>
+
+	* ext/gst-camerabin/gdigicam-camerabin.c: The 16x9 still picture:ChangeLog
 
 	* doc/reference/gdigicam-sections.txt: Added new gtk-doc.
 	* src/gdigicam-manager-private.h: Removed "gst_bus" private

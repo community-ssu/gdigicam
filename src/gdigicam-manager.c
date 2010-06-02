@@ -92,12 +92,15 @@ enum
     PREVIEW_SIGNAL,
     PICTURE_GOT_SIGNAL,
     INTERNAL_ERROR_SIGNAL,
+    IO_ERROR_SIGNAL,
+    NO_SPACE_ERROR_SIGNAL,
     LAST_SIGNAL
 };
 
 static guint manager_signals [LAST_SIGNAL] = { 0 };
 
 #define MIN_ZOOM 1
+#define STATE_CHANGE_TIMEOUT 1000000000
 
 /***************************************/
 /* Gobject support function prototypes */
@@ -126,6 +129,8 @@ static void _g_digicam_manager_free_private (GDigicamManagerPrivate *priv);
 static void _mapping_capabilities (GstCaps *caps, GDigicamDescriptor *descriptor);
 gboolean _mapping_structure  (GQuark field_id, const GValue *value, gpointer user_data);
 static gboolean _picture_done (GObject *camera, const gchar *filename, gpointer user_data);
+static void _internal_error_recovering (GDigicamManager *self);
+static gboolean _evaluate_transition (GDigicamManagerPrivate *priv, GstStateChangeReturn result);
 
 /***************************************/
 /* Public functions to manage G_OBJECT */
@@ -4561,6 +4566,38 @@ _g_digicam_manager_class_init (GDigicamManagerClass *klass)
                       NULL, NULL,
                       g_cclosure_marshal_VOID__VOID,
                       G_TYPE_NONE, 0);
+
+    /**
+     * GDigicamManager::io-error:
+     * @manager: the gdigicam manager
+     *
+     * Signal emited when an Input/Ouput error is detected in the lower layers.
+     */
+
+    manager_signals[IO_ERROR_SIGNAL] =
+        g_signal_new ("io-error",
+                      G_TYPE_FROM_CLASS (klass),
+                      G_SIGNAL_RUN_LAST,
+                      G_STRUCT_OFFSET (GDigicamManagerClass, io_error),
+                      NULL, NULL,
+                      g_cclosure_marshal_VOID__VOID,
+                      G_TYPE_NONE, 0);
+
+    /**
+     * GDigicamManager::no-space-error:
+     * @manager: the gdigicam manager
+     *
+     * Signal emited when np available space error is detected in the lower layers.
+     */
+
+    manager_signals[NO_SPACE_ERROR_SIGNAL] =
+        g_signal_new ("no-space-error",
+                      G_TYPE_FROM_CLASS (klass),
+                      G_SIGNAL_RUN_LAST,
+                      G_STRUCT_OFFSET (GDigicamManagerClass, no_space_error),
+                      NULL, NULL,
+                      g_cclosure_marshal_VOID__VOID,
+                      G_TYPE_NONE, 0);
 }
 
 static void
@@ -4740,48 +4777,70 @@ _g_digicam_manager_bus_callback (GstBus     *bus,
                                  GstMessage *message,
                                  gpointer    data)
 {
-    GDigicamManagerPrivate *priv = G_DIGICAM_MANAGER_GET_PRIVATE (data);
+    GDigicamManager *self = NULL;
+    GDigicamManagerPrivate *priv = NULL;
+    GError *err = NULL;
+    gchar *debug = NULL;
+
+    g_assert (G_DIGICAM_IS_MANAGER (data));
+    self = G_DIGICAM_MANAGER (data);
+    priv = G_DIGICAM_MANAGER_GET_PRIVATE (self);
 
     switch (GST_MESSAGE_TYPE (message)) {
     case GST_MESSAGE_ERROR: {
-        GError *err;
-        gchar *debug;
 
         gst_message_parse_error (message, &err, &debug);
         G_DIGICAM_DEBUG ("GDigicamManager::_g_digicam_manager_bus_callback: "
                          "Error: %s.", err->message);
-        g_error_free (err);
-        g_free (debug);
 
-	/* INTERNAL ERROR!!! STOP BIN!!! */
-	g_digicam_manager_stop_bin (G_DIGICAM_MANAGER (data), NULL);
-	/* Emit the internal error signal so any UI can handle it
-         * properly. */
-	g_signal_emit (G_OBJECT (data),
-                       manager_signals [INTERNAL_ERROR_SIGNAL],
-                       0);
+        /* Trying to recover from an internal error. */
+        _internal_error_recovering (self);
+
+        /* Analyzing the kind of error. */
+        switch (err->code) {
+        case GST_RESOURCE_ERROR_OPEN_WRITE:
+            /* Input/Output recoverable error */
+            g_signal_emit (G_OBJECT (data),
+                           manager_signals [IO_ERROR_SIGNAL],
+                           0);
+            break;
+        case GST_RESOURCE_ERROR_NO_SPACE_LEFT:
+            /* Input/Output recoverable error. */
+            g_signal_emit (G_OBJECT (data),
+                           manager_signals [NO_SPACE_ERROR_SIGNAL],
+                           0);
+            break;
+        default:
+            /* Emit the internal error signal so any UI can handle it
+             * properly. */
+            g_signal_emit (G_OBJECT (data),
+                           manager_signals [INTERNAL_ERROR_SIGNAL],
+                           0);
+        }
 
         break;
     }
     case GST_MESSAGE_WARNING: {
-        GError *err;
-        gchar *debug;
 
         gst_message_parse_warning (message, &err, &debug);
         G_DIGICAM_WARN ("GDigicamManagerPrivate::_g_digicam_manager_bus_callback: "
                         "Warning: %s.", err->message);
-        g_error_free (err);
-        g_free (debug);
         break;
     }
     default:
 	/* Nor error neither warning messages will be handled by the
          * plugin. */
 	if (NULL != priv->descriptor->handle_bus_message_func) {
-	    priv->descriptor->handle_bus_message_func (G_DIGICAM_MANAGER (data),
+	    priv->descriptor->handle_bus_message_func (self,
 						       message);
 	}
     }
+
+    if (NULL != err) {
+        g_error_free (err);
+    }
+    g_free (debug);
+
 
     return TRUE;
 }
@@ -4927,4 +4986,89 @@ _picture_done (GObject *gst_element,
     g_string_free (string, TRUE);
 
     return result;
+}
+
+
+static void
+_internal_error_recovering (GDigicamManager *self)
+{
+    GDigicamManagerPrivate *priv = NULL;
+    GError *error = NULL;
+    GstStateChangeReturn result;
+
+    g_assert (G_DIGICAM_IS_MANAGER (self));
+    priv = G_DIGICAM_MANAGER_GET_PRIVATE (self);
+
+    /* Trying to recover by stopping the bin (NULL state). */
+    if (!g_digicam_manager_stop_bin (self, &error)) {
+        if (NULL != error) {
+            G_DIGICAM_DEBUG ("GDigicamCamerabin::_internal_error_recovering: "
+                             "Stopping the bin is not enough to recover!!! %s",
+                             error->message);
+            g_error_free (error);
+        }
+    } else {
+        /* Change the state manually. */
+        result = gst_element_change_state (priv->gst_pipeline,
+                                           GST_STATE_CHANGE_PLAYING_TO_PAUSED);
+        if (!_evaluate_transition (priv, result)) {
+            G_DIGICAM_DEBUG ("GDigicamCamerabin::_internal_error_recovering: "
+                             "Recovery not possible !!! "
+                             "impossible to set the PAUSED state "
+                             "in the pipeline");
+        }
+        result = gst_element_change_state (priv->gst_pipeline,
+                                           GST_STATE_CHANGE_PAUSED_TO_READY);
+        if (!_evaluate_transition (priv, result)) {
+            G_DIGICAM_DEBUG ("GDigicamCamerabin::_internal_error_recovering: "
+                             "Recovery not possible !!! "
+                             "impossible to set the READY state "
+                             "in the pipeline");
+        }
+        result = gst_element_change_state (priv->gst_pipeline,
+                                           GST_STATE_CHANGE_READY_TO_NULL);
+        if (!_evaluate_transition (priv, result)) {
+            G_DIGICAM_DEBUG ("GDigicamCamerabin::_internal_error_recovering: "
+                             "Recovery not possible !!! "
+                             "impossible to set the NULL state "
+                             "in the pipeline");
+        }
+    }
+}
+
+
+static gboolean
+_evaluate_transition (GDigicamManagerPrivate *priv,
+                      GstStateChangeReturn result)
+{
+    gboolean eval = TRUE;
+
+    switch (result) {
+    case GST_STATE_CHANGE_SUCCESS:
+    case GST_STATE_CHANGE_NO_PREROLL:
+	break;
+    case GST_STATE_CHANGE_ASYNC:
+	while (TRUE) {
+	    result = gst_element_get_state (priv->gst_pipeline,
+                                            NULL,
+                                            NULL,
+                                            STATE_CHANGE_TIMEOUT);
+	    if (result == GST_STATE_CHANGE_SUCCESS
+		|| result == GST_STATE_CHANGE_NO_PREROLL) {
+		break;
+	    }
+
+	    if (result == GST_STATE_CHANGE_FAILURE) {
+                eval = FALSE;
+	    }
+	}
+	break;
+    case GST_STATE_CHANGE_FAILURE:
+	eval = FALSE;
+        break;
+    default:
+	g_assert_not_reached ();
+    }
+
+    return eval;
 }

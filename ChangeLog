@@ -1,3 +1,20 @@
+2010-06-02  Javier Fernández  <jfernandez@igalia.com>
+
+	reviewed by: Antía Puentes <apuentes@igalia.com>
+
+	* src/gdigicam-manager.c:
+	(_g_digicam_manager_class_init): Added new signals to notify
+	"reading/writing" and "no space left" errors that happens in
+	the lower layers.
+	(_g_digicam_manager_bus_callback): Checks the received errors
+	and emits the proper signals.
+	(_internal_error_recovering): Tries to stop the bin when an error
+	in the lower layers happen.
+	(_evaluate_transition): Checks if the state change of the bin
+	was a success.
+	* src/gdigicam-manager.h (struct _GDigicamManagerClass):
+	Added class methods for the new signals.
+
 2010-02-02  Andrés Gómez  <agomez@igalia.com>
 
 	* ext/gst-camerabin/gdigicam-camerabin.c: The 16x9 still picture

@@ -1,3 +1,10 @@
+gdigicam (0.3.22.1) unstable; urgency=low
+
+  * Added new signals to notify GStreamer I/O errors when accessing the
+    filesystem.
+
+ -- Antía Puentes <apuentes@igalia.com>  Wed, 02 Jun 2010 19:01:37 +0200
+
 gdigicam (0.3.5.1) unstable; urgency=low
 
   * Fixes: NB#150488 - Generated framesizes should be multiple of 16

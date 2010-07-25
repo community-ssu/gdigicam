@@ -1,3 +1,9 @@
+gdigicam (0.3.29.1) unstable; urgency=low
+
+  * Modified the pict-done signal handler signature.
+
+ -- Antía Puentes <apuentes@igalia.com>  Sun, 25 Jul 2010 23:14:55 +0200
+
 gdigicam (0.3.22.1) unstable; urgency=low
 
   * Added new signals to notify GStreamer I/O errors when accessing the

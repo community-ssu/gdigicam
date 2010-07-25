@@ -4972,7 +4972,6 @@ _picture_done (GObject *gst_element,
 {
     gboolean result;
     GDigicamManagerPrivate *priv = NULL;
-    GString *string = NULL;
 
     priv = G_DIGICAM_MANAGER_GET_PRIVATE (user_data);
 
@@ -4980,10 +4979,8 @@ _picture_done (GObject *gst_element,
        the autofocus lock to allow a new one for the next picture */
     priv->locks = 0;
 
-    string = g_string_new (filename);
     g_signal_emit (G_OBJECT (user_data), manager_signals [PICT_DONE_SIGNAL], 0,
-		   string, &result);
-    g_string_free (string, TRUE);
+		   filename, &result);
 
     return result;
 }

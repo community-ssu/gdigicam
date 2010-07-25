@@ -1055,7 +1055,7 @@ extern "C" {
         void (*focus_done) (GDigicamManager *manager,
                            GDigicamFocusmodestatus status);
         gboolean (*pict_done) (GDigicamManager *manager,
-                               GString *filename);
+                               const gchar *filename);
 	void (*capture_start) (GDigicamManager *manager);
 
 	void (*capture_end) (GDigicamManager *manager);

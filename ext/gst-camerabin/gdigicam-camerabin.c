@@ -76,12 +76,22 @@
 #define G_DIGICAM_CAMERABIN_STILL_16X9_LOW_HEIGHT 1440;
 
 
+#define G_DIGICAM_CAMERABIN_VIDEO_4X3_HD_WIDTH 960;
+#define G_DIGICAM_CAMERABIN_VIDEO_4X3_HD_HEIGHT 720;
+#define G_DIGICAM_CAMERABIN_VIDEO_4X3_DVD_WIDTH 720;
+#define G_DIGICAM_CAMERABIN_VIDEO_4X3_DVD_HEIGHT 576;
+
 #define G_DIGICAM_CAMERABIN_VIDEO_4X3_HIGH_WIDTH 640;
 #define G_DIGICAM_CAMERABIN_VIDEO_4X3_HIGH_HEIGHT 480;
 #define G_DIGICAM_CAMERABIN_VIDEO_4X3_MEDIUM_WIDTH 640;
 #define G_DIGICAM_CAMERABIN_VIDEO_4X3_MEDIUM_HEIGHT 480;
 #define G_DIGICAM_CAMERABIN_VIDEO_4X3_LOW_WIDTH 320;
 #define G_DIGICAM_CAMERABIN_VIDEO_4X3_LOW_HEIGHT 240;
+
+#define G_DIGICAM_CAMERABIN_VIDEO_16X9_HD_WIDTH 1280;
+#define G_DIGICAM_CAMERABIN_VIDEO_16X9_HD_HEIGHT 720;
+#define G_DIGICAM_CAMERABIN_VIDEO_16X9_DVD_WIDTH 1024;
+#define G_DIGICAM_CAMERABIN_VIDEO_16X9_DVD_HEIGHT 576;
 
 #define G_DIGICAM_CAMERABIN_VIDEO_16X9_HIGH_WIDTH 848;
 #define G_DIGICAM_CAMERABIN_VIDEO_16X9_HIGH_HEIGHT 480;
@@ -101,7 +111,19 @@
 #define G_DIGICAM_CAMERABIN_VIEWFINDER_16X9_FPS 2988;
 
 /* Framerate for video widescreen mode. */
-#define G_DIGICAM_CAMERABIN_VIEWFINDER_16X9_VIDEO_FPS 2500;
+#define G_DIGICAM_CAMERABIN_VIEWFINDER_16X9_VIDEO_FPS 3000;
+
+/* Framerate for video 4x3 DVD (720x576)mode. */
+#define G_DIGICAM_CAMERABIN_VIEWFINDER_4X3_DVD_VIDEO_FPS 3000;
+
+/* Framerate for video 4x3 HD (960x720) mode. */
+#define G_DIGICAM_CAMERABIN_VIEWFINDER_4X3_HD_VIDEO_FPS 3000;
+
+/* Framerate for video 16x9 DVD (1024x576)mode. */
+#define G_DIGICAM_CAMERABIN_VIEWFINDER_16X9_DVD_VIDEO_FPS 3000;
+
+/* Framerate for video 16x9 HD (1280x720) mode. */
+#define G_DIGICAM_CAMERABIN_VIEWFINDER_16X9_HD_VIDEO_FPS 2500;
 
 #define G_DIGICAM_CAMERABIN_PHOTO_CAPTURE_START_MESSAGE "photo-capture-start"
 #define G_DIGICAM_CAMERABIN_PHOTO_CAPTURE_PICTURE_GOT_MESSAGE "photo-capture-end"
@@ -2779,6 +2801,14 @@ _get_video_aspect_ratio_and_resolution (GDigicamAspectratio ar,
     switch (ar) {
     case G_DIGICAM_ASPECTRATIO_4X3:
         switch (res) {
+        case G_DIGICAM_RESOLUTION_HD:
+            *vf_w = G_DIGICAM_CAMERABIN_VIDEO_4X3_HD_WIDTH;
+            *vf_h = G_DIGICAM_CAMERABIN_VIDEO_4X3_HD_HEIGHT;
+            break;
+        case G_DIGICAM_RESOLUTION_DVD:
+            *vf_w = G_DIGICAM_CAMERABIN_VIDEO_4X3_DVD_WIDTH;
+            *vf_h = G_DIGICAM_CAMERABIN_VIDEO_4X3_DVD_HEIGHT;
+            break;
         case G_DIGICAM_RESOLUTION_HIGH:
             *vf_w = G_DIGICAM_CAMERABIN_VIDEO_4X3_HIGH_WIDTH;
             *vf_h = G_DIGICAM_CAMERABIN_VIDEO_4X3_HIGH_HEIGHT;
@@ -2794,11 +2824,24 @@ _get_video_aspect_ratio_and_resolution (GDigicamAspectratio ar,
         default:
             g_assert_not_reached ();
         }
-        *fps_n = G_DIGICAM_CAMERABIN_VIEWFINDER_4X3_FPS;
+        if(res == G_DIGICAM_RESOLUTION_HD)
+            *fps_n = G_DIGICAM_CAMERABIN_VIEWFINDER_4X3_HD_VIDEO_FPS
+        else if(res == G_DIGICAM_RESOLUTION_DVD)
+            *fps_n = G_DIGICAM_CAMERABIN_VIEWFINDER_4X3_DVD_VIDEO_FPS
+        else
+            *fps_n = G_DIGICAM_CAMERABIN_VIEWFINDER_4X3_FPS
         *fps_d = 100;
         break;
     case G_DIGICAM_ASPECTRATIO_16X9:
         switch (res) {
+        case G_DIGICAM_RESOLUTION_HD:
+            *vf_w = G_DIGICAM_CAMERABIN_VIDEO_16X9_HD_WIDTH;
+            *vf_h = G_DIGICAM_CAMERABIN_VIDEO_16X9_HD_HEIGHT;
+            break;
+        case G_DIGICAM_RESOLUTION_DVD:
+            *vf_w = G_DIGICAM_CAMERABIN_VIDEO_16X9_DVD_WIDTH;
+            *vf_h = G_DIGICAM_CAMERABIN_VIDEO_16X9_DVD_HEIGHT;
+            break;
         case G_DIGICAM_RESOLUTION_HIGH:
             *vf_w = G_DIGICAM_CAMERABIN_VIDEO_16X9_HIGH_WIDTH;
             *vf_h = G_DIGICAM_CAMERABIN_VIDEO_16X9_HIGH_HEIGHT;
@@ -2814,7 +2857,12 @@ _get_video_aspect_ratio_and_resolution (GDigicamAspectratio ar,
         default:
             g_assert_not_reached ();
         }
-        *fps_n = G_DIGICAM_CAMERABIN_VIEWFINDER_16X9_VIDEO_FPS;
+        if(res == G_DIGICAM_RESOLUTION_HD)
+            *fps_n = G_DIGICAM_CAMERABIN_VIEWFINDER_16X9_HD_VIDEO_FPS
+        else if(res == G_DIGICAM_RESOLUTION_DVD)
+            *fps_n = G_DIGICAM_CAMERABIN_VIEWFINDER_16X9_DVD_VIDEO_FPS
+        else
+            *fps_n = G_DIGICAM_CAMERABIN_VIEWFINDER_16X9_VIDEO_FPS
         *fps_d = 100;
         break;
     default:

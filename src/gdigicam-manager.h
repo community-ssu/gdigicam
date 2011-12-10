@@ -630,8 +630,10 @@ extern "C" {
         G_DIGICAM_RESOLUTION_HIGH   = 1 << 0,
         G_DIGICAM_RESOLUTION_MEDIUM = 1 << 1,
         G_DIGICAM_RESOLUTION_LOW    = 1 << 2,
-
-        G_DIGICAM_RESOLUTION_N      = (1 << 2)+1
+        G_DIGICAM_RESOLUTION_DVD    = 1 << 3,
+        G_DIGICAM_RESOLUTION_HD     = 1 << 4,
+        
+        G_DIGICAM_RESOLUTION_N      = (1 << 4)+1
     } GDigicamResolution;
 
 

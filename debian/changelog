@@ -1,3 +1,15 @@
+gdigicam (0.3.29.2+0cssu1) unstable; urgency=low
+
+  * DVD/HD resolutions support
+
+ -- Ivaylo Dimitrov <freemangordon@abv.bg>  Sat, 10 Dec 2011 11:20:23 +0200
+gdigicam (0.3.29.1+0m5) unstable; urgency=low
+
+  * This entry has been added by BIFH queue processor
+    version has been changed to 0.3.29.1+0m5
+
+ -- Piyush Laddha <ext-piyush.laddha@nokia.com>  Tue, 27 Jul 2010 11:20:23 +0300
+
 gdigicam (0.3.29.1) unstable; urgency=low
 
   * Modified the pict-done signal handler signature.

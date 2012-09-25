@@ -1,3 +1,9 @@
+gdigicam (0.3.29.2+0cssu1+thumb0) unstable; urgency=low
+
+  * Thumb2 compile
+
+ -- Ivaylo Dimitrov <freemangordon@abv.bg>  Tue, 25 Sep 2012 08:56:17 +0300
+
 gdigicam (0.3.29.2+0cssu1) unstable; urgency=low
 
   * DVD/HD resolutions support

@@ -124,7 +124,7 @@ GError*
 g_digicam_error_new (GDigicamError error_id, const gchar *str, ...)
 {
     GError* error = NULL;
-    va_list args = NULL;
+    va_list args;
 
     va_start (args, str);
     error = _error_new_valist (error_id, str, args);
